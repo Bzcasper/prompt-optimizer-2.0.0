@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Video Script Agent Input",
+  "type": "object",
+  "properties": {
+    "topic": {
+      "type": "string",
+      "description": "The main topic for the video."
+    },
+    "video_length_minutes": {
+      "type": "integer",
+      "description": "The desired length of the video in minutes.",
+      "default": 5
+    },
+    "style": {
+      "type": "string",
+      "enum": ["documentary", "vlog", "tutorial", "whiteboard"],
+      "default": "tutorial"
+    },
+    "characters": {
+      "type": "integer",
+      "description": "Number of characters in the video for dialogue generation.",
+      "default": 1
+    }
+  },
+  "required": ["topic"]
+}

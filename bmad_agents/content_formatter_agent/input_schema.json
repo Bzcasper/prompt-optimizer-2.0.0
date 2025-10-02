@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Content Formatter Agent Input",
+  "type": "object",
+  "properties": {
+    "content": {
+      "type": "string",
+      "description": "The raw content to be formatted."
+    },
+    "format": {
+      "type": "string",
+      "enum": ["markdown", "html"],
+      "description": "The target format for the content.",
+      "default": "markdown"
+    }
+  },
+  "required": ["content", "format"]
+}
