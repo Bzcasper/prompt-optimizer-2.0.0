@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Keyword Expander Agent Output",
+  "type": "object",
+  "properties": {
+    "expanded_keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "A list of expanded and semantically related keywords."
+    }
+  },
+  "required": ["expanded_keywords"]
+}

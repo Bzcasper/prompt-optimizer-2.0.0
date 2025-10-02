@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Image Prompt Agent Output",
+  "type": "object",
+  "properties": {
+    "prompt": {
+      "type": "string",
+      "description": "The fully constructed, detailed prompt for an AI image generator."
+    },
+    "negative_prompt": {
+      "type": "string",
+      "description": "A corresponding negative prompt to help refine the image generation."
+    },
+    "filename": {
+      "type": "string",
+      "description": "A suggested filename for the generated image."
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "style": { "type": "string" },
+        "aspect_ratio": { "type": "string" },
+        "model": { "type": "string" },
+        "lighting": { "type": "string" },
+        "perspective": { "type": "string" },
+        "composition": { "type": "string" },
+        "modifiers": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "description": "The structured parameters used to build the prompt."
+    },
+    "model_suggestions": {
+        "type": "array",
+        "items": {
+            "type": "string"
+        },
+        "description": "A list of suggested AI image models that might work well for this prompt (e.g., 'Midjourney v6', 'DALL-E 3')."
+    }
+  },
+  "required": ["prompt", "filename", "parameters"]
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Image Prompt Agent Input",
+  "type": "object",
+  "properties": {
+    "base_subject": {
+      "type": "string",
+      "description": "The main subject or concept for the image."
+    },
+    "style": {
+      "type": "string",
+      "enum": ["photorealistic", "cinematic", "illustration", "3d-render", "abstract"],
+      "default": "photorealistic"
+    },
+    "aspect_ratio": {
+      "type": "string",
+      "description": "The desired aspect ratio, e.g., '16:9', '1:1', '4:3'.",
+      "default": "16:9"
+    },
+    "model": {
+      "type": "string",
+      "enum": ["dall-e", "midjourney", "stable-diffusion"],
+      "description": "The target AI image model.",
+      "default": "midjourney"
+    },
+    "lighting": {
+      "type": "string",
+      "description": "The desired lighting style, e.g., 'dramatic lighting', 'soft light', 'studio lighting'."
+    },
+    "perspective": {
+      "type": "string",
+      "description": "The desired camera perspective, e.g., 'wide angle', 'close-up', 'top-down'."
+    },
+    "composition": {
+      "type": "string",
+      "description": "The desired composition, e.g., 'rule of thirds', 'centered'."
+    },
+    "modifiers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "A list of additional style modifiers, e.g., 'hyperdetailed', '8k'."
+    }
+  },
+  "required": ["base_subject"]
+}
