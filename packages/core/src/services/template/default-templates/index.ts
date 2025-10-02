@@ -58,8 +58,16 @@ import { template as image2image_design_text_edit_optimize_en } from './image-op
 import { template as image_iterate_general } from './image-optimize/iterate/image-iterate-general';
 import { template as image_iterate_general_en } from './image-optimize/iterate/image-iterate-general_en';
 
+// Custom templates
+import { CONTENT_TEMPLATES } from './content-templates';
+import { VIDEO_TEMPLATES } from './video-templates';
+import { IMAGE_TEMPLATES } from './image-templates';
+
 // 简单的模板集合 - 模板自身已包含完整信息（id、name、language、type等）
 export const ALL_TEMPLATES = {
+  ...CONTENT_TEMPLATES,
+  ...VIDEO_TEMPLATES,
+  ...IMAGE_TEMPLATES,
   general_optimize,
   general_optimize_en,
   output_format_optimize,
