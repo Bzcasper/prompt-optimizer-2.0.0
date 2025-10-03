@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VideoScriptOutput",
+  "type": "object",
+  "required": [
+    "video_title",
+    "scenes"
+  ],
+  "properties": {
+    "video_title": {
+      "type": "string"
+    },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scene_number", "timestamp", "visuals", "narration"],
+        "properties": {
+          "scene_number": { "type": "integer" },
+          "timestamp": { "type": "string" },
+          "visuals": { "type": "string" },
+          "narration": { "type": "string" }
+        }
+      }
+    }
+  }
+}

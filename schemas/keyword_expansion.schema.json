@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KeywordExpansionOutput",
+  "type": "object",
+  "required": [
+    "keyword_analysis"
+  ],
+  "properties": {
+    "keyword_analysis": {
+      "type": "object",
+      "required": [
+        "seed_keywords",
+        "intent",
+        "expansion"
+      ],
+      "properties": {
+        "seed_keywords": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "intent": {
+          "type": "string"
+        },
+        "expansion": {
+          "type": "object",
+          "required": ["long_tail", "semantic", "questions"],
+          "properties": {
+            "long_tail": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "semantic": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "questions": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

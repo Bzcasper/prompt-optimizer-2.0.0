@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ImagePromptOutput",
+  "type": "object",
+  "required": [
+    "prompts"
+  ],
+  "properties": {
+    "prompts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["prompt_id", "prompt_text", "negative_prompt"],
+        "properties": {
+          "prompt_id": { "type": "string" },
+          "prompt_text": { "type": "string" },
+          "negative_prompt": { "type": "string" }
+        }
+      }
+    }
+  }
+}
