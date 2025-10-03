@@ -18,7 +18,10 @@ export type TemplateType =
   | 'iterate'
   | 'context-system-optimize'
   | 'context-user-optimize'
-  | 'context-iterate';
+  | 'context-iterate'
+  | 'content'
+  | 'video'
+  | 'image';
 export type Language = 'zh' | 'en';
 
 export interface StaticTemplateCollection {
@@ -76,7 +79,10 @@ export class StaticLoader {
         'iterate': { zh: {}, en: {} },
         'context-system-optimize': { zh: {}, en: {} },
         'context-user-optimize': { zh: {}, en: {} },
-        'context-iterate': { zh: {}, en: {} }
+        'context-iterate': { zh: {}, en: {} },
+        'content': { zh: {}, en: {} },
+        'video': { zh: {}, en: {} },
+        'image': { zh: {}, en: {} }
       };
 
       // 处理每个模板
@@ -114,6 +120,15 @@ export class StaticLoader {
           case 'contextIterate':
             normalizedType = 'context-iterate';
             break;
+          case 'content':
+            normalizedType = 'content';
+            break;
+          case 'video':
+            normalizedType = 'video';
+            break;
+          case 'image':
+            normalizedType = 'image';
+            break;
           case 'iterate':
           case 'optimize':
           default:
@@ -145,7 +160,10 @@ export class StaticLoader {
         iterate: Object.keys(byType.iterate.zh).length + Object.keys(byType.iterate.en).length,
         'context-system-optimize': Object.keys(byType['context-system-optimize'].zh).length + Object.keys(byType['context-system-optimize'].en).length,
         'context-user-optimize': Object.keys(byType['context-user-optimize'].zh).length + Object.keys(byType['context-user-optimize'].en).length,
-        'context-iterate': Object.keys(byType['context-iterate'].zh).length + Object.keys(byType['context-iterate'].en).length
+        'context-iterate': Object.keys(byType['context-iterate'].zh).length + Object.keys(byType['context-iterate'].en).length,
+        content: Object.keys(byType.content.zh).length + Object.keys(byType.content.en).length,
+        video: Object.keys(byType.video.zh).length + Object.keys(byType.video.en).length,
+        image: Object.keys(byType.image.zh).length + Object.keys(byType.image.en).length
       });
 
       StaticLoader.templateCache = result;

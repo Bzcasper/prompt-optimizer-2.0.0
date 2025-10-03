@@ -1,69 +1,52 @@
 import { Template } from '../types';
 
-export const TOPIC_IDEA_GENERATOR: Template = {
-  id: 'topic-idea-generator',
-  name: 'Topic Idea Generator',
-  isBuiltin: true,
-  content: `
-    You are an expert content strategist.
-    Generate a list of 5-10 engaging topic ideas based on the following keyword: {keyword}.
-    For each topic, provide a brief angle or hook.
-  `,
-  metadata: {
-    version: '1.0.0',
-    templateType: 'optimize',
-    author: 'Jules',
-    description: 'Generates a list of topic ideas with hooks based on a keyword.',
-    tags: ['content', 'ideas', 'blogging'],
-    language: 'en',
-    field: 'content-creation',
+export const CONTENT_TEMPLATES: Record<string, Template> = {
+  'topic-idea-generator': {
+    id: 'topic-idea-generator',
+    name: 'Topic Idea Generator',
+    content: 'Generate {num_ideas} topic ideas for a {niche} niche, targeting a {audience} audience with a {tone} tone.',
+    metadata: {
+      version: '1.0.0',
+      lastModified: Date.now(),
+      templateType: 'content',
+      language: 'en',
+    },
+    isBuiltin: true,
   },
-};
-
-export const SEO_BLOG_WRITER: Template = {
-  id: 'seo-blog-writer',
-  name: 'SEO Blog Writer',
-  isBuiltin: true,
-  content: `
-    You are an expert SEO copywriter.
-    Write a 500-word blog post on the following topic: {topic}.
-    Include the following keywords naturally throughout the text: {keywords}.
-    The blog post should have a clear introduction, body, and conclusion.
-    Format the output in Markdown.
-  `,
-  metadata: {
-    version: '1.0.0',
-    templateType: 'optimize',
-    author: 'Jules',
-    description: 'Writes an SEO-optimized blog post on a given topic.',
-    tags: ['content', 'seo', 'blogging'],
-    language: 'en',
-    field: 'content-creation',
+  'seo-blog-writer': {
+    id: 'seo-blog-writer',
+    name: 'SEO Blog Writer',
+    content: 'Write an SEO-optimized blog article about {topic}, including the keywords "{keywords}". The target audience is {audience}, the desired word count is {word_count}, and the tone should be {tone}.',
+    metadata: {
+      version: '1.0.0',
+      lastModified: Date.now(),
+      templateType: 'content',
+      language: 'en',
+    },
+    isBuiltin: true,
   },
-};
-
-export const CTA_GENERATOR: Template = {
-  id: 'cta-generator',
-  name: 'CTA Generator',
-  isBuiltin: true,
-  content: `
-    You are an expert conversion copywriter.
-    Generate 3-5 compelling call-to-action (CTA) phrases for the following offer: {offer}.
-    The CTAs should be short, action-oriented, and create a sense of urgency.
-  `,
-  metadata: {
-    version: '1.0.0',
-    templateType: 'optimize',
-    author: 'Jules',
-    description: 'Generates compelling call-to-action phrases.',
-    tags: ['content', 'marketing', 'copywriting'],
-    language: 'en',
-    field: 'content-creation',
+  'cta-generator': {
+    id: 'cta-generator',
+    name: 'CTA Generator',
+    content: 'Generate 5 {length} calls to action (CTAs) for a {product} with the goal of {goal}. The tone should be {tone}.',
+    metadata: {
+      version: '1.0.0',
+      lastModified: Date.now(),
+      templateType: 'content',
+      language: 'en',
+    },
+    isBuiltin: true,
   },
-};
-
-export const CONTENT_TEMPLATES = {
-  [TOPIC_IDEA_GENERATOR.id]: TOPIC_IDEA_GENERATOR,
-  [SEO_BLOG_WRITER.id]: SEO_BLOG_WRITER,
-  [CTA_GENERATOR.id]: CTA_GENERATOR,
+  'faq-extractor': {
+    id: 'faq-extractor',
+    name: 'FAQ Extractor',
+    content: 'Extract {num_questions} frequently asked questions (FAQs) and their answers from the following article text:\n\n{article_text}',
+    metadata: {
+      version: '1.0.0',
+      lastModified: Date.now(),
+      templateType: 'content',
+      language: 'en',
+    },
+    isBuiltin: true,
+  },
 };

@@ -1,71 +1,64 @@
 import { Template } from '../types';
 
-export const HOOK_GENERATOR: Template = {
-  id: 'hook-generator',
-  name: 'Hook Generator',
-  isBuiltin: true,
-  content: `
-    You are an expert video scriptwriter.
-    Generate 3-5 engaging hooks for a video about: {topic}.
-    Each hook should be 1-2 sentences long and grab the viewer's attention immediately.
-  `,
-  metadata: {
-    version: '1.0.0',
-    templateType: 'optimize',
-    author: 'Jules',
-    description: 'Generates engaging hooks for video scripts.',
-    tags: ['video', 'scriptwriting', 'hooks'],
-    language: 'en',
-    field: 'video-creation',
+export const VIDEO_TEMPLATES: Record<string, Template> = {
+  'hook-generator': {
+    id: 'hook-generator',
+    name: 'Hook Generator',
+    content: 'Generate 3 short hook lines for a video about {topic}, targeting a {audience} audience. The video should be {length_seconds} seconds long and evoke a feeling of {emotion}.',
+    metadata: {
+      version: '1.0.0',
+      lastModified: Date.now(),
+      templateType: 'video',
+      language: 'en',
+    },
+    isBuiltin: true,
   },
-};
-
-export const FULL_SCRIPT_BUILDER: Template = {
-  id: 'full-script-builder',
-  name: 'Full Script Builder',
-  isBuiltin: true,
-  content: `
-    You are an expert video scriptwriter.
-    Write a full video script based on the following topic and key points:
-    Topic: {topic}
-    Key Points: {key_points}
-    The script should be approximately {duration} minutes long and include an introduction, body, and conclusion.
-    Format the output with clear scene descriptions and dialogue.
-  `,
-  metadata: {
-    version: '1.0.0',
-    templateType: 'optimize',
-    author: 'Jules',
-    description: 'Builds a full video script from a topic and key points.',
-    tags: ['video', 'scriptwriting', 'content'],
-    language: 'en',
-    field: 'video-creation',
+  'full-script-builder': {
+    id: 'full-script-builder',
+    name: 'Full Script Builder',
+    content: 'Create a scene-by-scene script with timestamps for a video titled "{title}". The target audience is {audience}, the total length is {total_length_seconds} seconds, and the structure is {structure}.',
+    metadata: {
+      version: '1.0.0',
+      lastModified: Date.now(),
+      templateType: 'video',
+      language: 'en',
+    },
+    isBuiltin: true,
   },
-};
-
-export const SCENE_LIST_OPTIMIZER: Template = {
-  id: 'scene-list-optimizer',
-  name: 'Scene List Optimizer',
-  isBuiltin: true,
-  content: `
-    You are an expert video editor and storyteller.
-    Review the following scene list and suggest optimizations for better flow and visual interest:
-    {scene_list}
-    Provide a revised scene list with your suggestions and rationale.
-  `,
-  metadata: {
-    version: '1.0.0',
-    templateType: 'optimize',
-    author: 'Jules',
-    description: 'Optimizes a scene list for better video flow.',
-    tags: ['video', 'editing', 'storytelling'],
-    language: 'en',
-    field: 'video-creation',
+  'scene-breakdown-optimizer': {
+    id: 'scene-breakdown-optimizer',
+    name: 'Scene Breakdown Optimizer',
+    content: 'Optimize the following script into a scene list with a maximum of {max_scenes} scenes. The visual constraints are: {visual_constraints}.\n\nScript:\n{script}',
+    metadata: {
+      version: '1.0.0',
+      lastModified: Date.now(),
+      templateType: 'video',
+      language: 'en',
+    },
+    isBuiltin: true,
   },
-};
-
-export const VIDEO_TEMPLATES = {
-  [HOOK_GENERATOR.id]: HOOK_GENERATOR,
-  [FULL_SCRIPT_BUILDER.id]: FULL_SCRIPT_BUILDER,
-  [SCENE_LIST_OPTIMIZER.id]: SCENE_LIST_OPTIMIZER,
+  'short-form-caption-writer': {
+    id: 'short-form-caption-writer',
+    name: 'Short-Form Caption Writer',
+    content: 'Write a short caption and 3 hashtag suggestions for a video with the following summary: {video_summary}. The platform is {platform}, the tone should be {tone}, and the hashtag seed is {hashtag_seed}.',
+    metadata: {
+      version: '1.0.0',
+      lastModified: Date.now(),
+      templateType: 'video',
+      language: 'en',
+    },
+    isBuiltin: true,
+  },
+  'thumbnail-text-generator': {
+    id: 'thumbnail-text-generator',
+    name: 'Thumbnail Text Generator',
+    content: 'Generate 3 headline overlays (short lines) for a video thumbnail. The video title is "{video_title}" and the main hook is "{main_hook}". The character limit is {char_limit}.',
+    metadata: {
+      version: '1.0.0',
+      lastModified: Date.now(),
+      templateType: 'video',
+      language: 'en',
+    },
+    isBuiltin: true,
+  },
 };

@@ -12,8 +12,8 @@ import { TemplateProcessor, TemplateContext } from '../template/processor';
  * Default template IDs used by the system
  */
 const DEFAULT_TEMPLATES = {
-  OPTIMIZE: 'general-optimize',
-  ITERATE: 'iterate',
+  OPTIMIZE: 'title-headline-optimizer',
+  ITERATE: 'ab-variation-creator',
   TEST: 'test-prompt'
 } as const;
 

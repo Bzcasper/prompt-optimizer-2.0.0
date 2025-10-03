@@ -1,46 +1,52 @@
 import { Template } from '../types';
 
-export const PROMPT_BUILDER: Template = {
-  id: 'prompt-builder',
-  name: 'Prompt Builder',
-  isBuiltin: true,
-  content: `
-    You are an expert prompt engineer for image generation models.
-    Build a detailed image generation prompt based on the following concept: {concept}.
-    Include details about the subject, style, lighting, composition, and any other relevant parameters.
-  `,
-  metadata: {
-    version: '1.0.0',
-    templateType: 'text2imageOptimize',
-    author: 'Jules',
-    description: 'Builds a detailed image generation prompt from a concept.',
-    tags: ['image', 'prompting', 'ai'],
-    language: 'en',
-    field: 'image-creation',
+export const IMAGE_TEMPLATES: Record<string, Template> = {
+  'prompt-builder': {
+    id: 'prompt-builder',
+    name: 'Prompt Builder',
+    content: 'Generate a single-line detailed prompt for an image with the following characteristics:\n- Subject: {subject}\n- Style: {style}\n- Camera Specs: {camera_specs}\n- Mood: {mood}',
+    metadata: {
+      version: '1.0.0',
+      lastModified: Date.now(),
+      templateType: 'image',
+      language: 'en',
+    },
+    isBuiltin: true,
   },
-};
-
-export const THUMBNAIL_STYLE_PRESET: Template = {
-  id: 'thumbnail-style-preset',
-  name: 'Thumbnail Style Preset',
-  isBuiltin: true,
-  content: `
-    Apply the following style preset to the image prompt:
-    Style: 3D, high detail, cinematic lighting, vibrant colors.
-    {image_prompt}
-  `,
-  metadata: {
-    version: '1.0.0',
-    templateType: 'text2imageOptimize',
-    author: 'Jules',
-    description: 'Applies a style preset to an image prompt.',
-    tags: ['image', 'style', 'thumbnail'],
-    language: 'en',
-    field: 'image-creation',
+  'thumbnail-style-preset': {
+    id: 'thumbnail-style-preset',
+    name: 'Thumbnail Style Preset',
+    content: 'Generate a JSON preset for a thumbnail with the following attributes:\n- Style: {style}\n- Target Audience: {target_audience}\n- Aspect Ratio: {aspect_ratio}',
+    metadata: {
+      version: '1.0.0',
+      lastModified: Date.now(),
+      templateType: 'image',
+      language: 'en',
+    },
+    isBuiltin: true,
   },
-};
-
-export const IMAGE_TEMPLATES = {
-  [PROMPT_BUILDER.id]: PROMPT_BUILDER,
-  [THUMBNAIL_STYLE_PRESET.id]: THUMBNAIL_STYLE_PRESET,
+  'alt-text-generator': {
+    id: 'alt-text-generator',
+    name: 'ALT Text Generator',
+    content: 'Generate alt text and a short social media caption for an image with the following description: {image_description}. The target audience is {audience} and the SEO keyword is "{seo_keyword}".',
+    metadata: {
+      version: '1.0.0',
+      lastModified: Date.now(),
+      templateType: 'image',
+      language: 'en',
+    },
+    isBuiltin: true,
+  },
+  'variation-generator': {
+    id: 'variation-generator',
+    name: 'Variation Generator',
+    content: 'Generate {num_variations} variations of the following base prompt: "{base_prompt}". The variation style should be "{variation_style}".',
+    metadata: {
+      version: '1.0.0',
+      lastModified: Date.now(),
+      templateType: 'image',
+      language: 'en',
+    },
+    isBuiltin: true,
+  },
 };

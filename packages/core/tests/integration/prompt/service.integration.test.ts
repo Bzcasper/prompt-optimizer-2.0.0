@@ -175,7 +175,7 @@ describe('PromptService Integration Tests', () => {
         originalPrompt: 'Write a simple greeting',
         optimizedPrompt: result,
         modelKey: 'test-gemini',
-        templateId: 'iterate',
+        templateId: 'ab-variation-creator',
         iterationNote: 'Make it more formal'
       });
 
@@ -249,7 +249,7 @@ describe('PromptService Integration Tests', () => {
         optimizationMode: 'system' as const,
         targetPrompt: 'Write a simple greeting',
         modelKey: 'test-gemini',
-        templateId: 'general-optimize'
+        templateId: 'title-headline-optimizer'
       };
 
       // 使用Promise来确保onComplete被正确等待
@@ -298,7 +298,7 @@ describe('PromptService Integration Tests', () => {
               reject(error);
             }
           },
-          'iterate'
+          'ab-variation-creator'
         ).catch(reject);
       });
 
