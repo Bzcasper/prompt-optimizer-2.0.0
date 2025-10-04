@@ -59,6 +59,7 @@ import { template as image_iterate_general } from './image-optimize/iterate/imag
 import { template as image_iterate_general_en } from './image-optimize/iterate/image-iterate-general_en';
 
 // Custom templates
+import { ADVANCED_TEMPLATES } from './advanced-templates';
 import { CONTENT_TEMPLATES } from './content-templates';
 import { VIDEO_TEMPLATES } from './video-templates';
 import { IMAGE_TEMPLATES } from './image-templates';
@@ -69,6 +70,7 @@ import { USER_OPTIMIZE_TEMPLATES } from './user-optimize';
 
 // 简单的模板集合 - 模板自身已包含完整信息（id、name、language、type等）
 export const ALL_TEMPLATES = {
+  ...ADVANCED_TEMPLATES,
   ...CONTENT_TEMPLATES,
   ...VIDEO_TEMPLATES,
   ...IMAGE_TEMPLATES,
