@@ -1,0 +1,1274 @@
+{
+  "templates": [
+    {
+      "id": "api-client-generator-graphql",
+      "title": "GraphQL API Client Generator",
+      "description": "Generates a basic API client in Python or TypeScript for a given GraphQL schema and a specified query.",
+      "templateType": "code",
+      "inputs": [
+        "{graphqlSchema}",
+        "{query}",
+        "{language}"
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "content"
+              ]
+            }
+          },
+          "run_instructions": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "files"
+        ]
+      },
+      "requiredOutputKeys": [
+        "files"
+      ],
+      "exampleInput": {
+        "graphqlSchema": "type Query {\n  user(id: ID!): User\n}\n\ntype User {\n  id: ID!\n  name: String\n}",
+        "query": "query GetUser($id: ID!) {\n  user(id: $id) {\n    id\n    name\n  }\n}",
+        "language": "Python"
+      },
+      "exampleOutput": {
+        "files": [
+          {
+            "path": "graphql_client.py",
+            "content": "import requests\n\nclass GraphQLClient:\n    def __init__(self, endpoint: str):\n        self.endpoint = endpoint\n\n    def execute(self, query: str, variables: dict = None) -> dict:\n        \"\"\"Executes a GraphQL query.\"\"\"\n        try:\n            response = requests.post(\n                self.endpoint,\n                json={'query': query, 'variables': variables}\n            )\n            response.raise_for_status()\n            return response.json()\n        except requests.exceptions.RequestException as e:\n            print(f'An error occurred: {e}')\n            return None"
+          },
+          {
+            "path": "main.py",
+            "content": "from graphql_client import GraphQLClient\n\nif __name__ == '__main__':\n    client = GraphQLClient(endpoint='https://api.example.com/graphql')\n    \n    get_user_query = '''\n    query GetUser($id: ID!) {\n      user(id: $id) {\n        id\n        name\n      }\n    }\n    '''\n    variables = {'id': '1'}\n    \n    result = client.execute(get_user_query, variables)\n    if result:\n        print(result)"
+          }
+        ],
+        "run_instructions": "1. Install dependencies: pip install requests\n2. Run the example: python main.py"
+      },
+      "placeholderMapper": [],
+      "dependencyTemplates": [],
+      "tags": [
+        "code-generation",
+        "api",
+        "graphql",
+        "client",
+        "python",
+        "typescript"
+      ],
+      "version": "1.0.0",
+      "meta": {
+        "author": "jules-system",
+        "license": "MIT",
+        "created_at": "2025-10-03",
+        "recommended_runtime": {
+          "model": "gpt-4-code-interpreter",
+          "temperature": 0.1,
+          "max_tokens": 2000
+        },
+        "runtime_notes": "Requires a model that understands GraphQL schemas and can generate corresponding client code."
+      },
+      "validationRules": [
+        "exampleOutput.files.length > 0"
+      ],
+      "testCases": [
+        {
+          "name": "TypeScript GraphQL Client",
+          "input": {
+            "graphqlSchema": "type Query { books: [Book] } type Book { title: String }",
+            "query": "query GetBooks { books { title } }",
+            "language": "TypeScript"
+          },
+          "expectedOutputPattern": {
+            "files": [
+              {
+                "path": ".*\\.ts",
+                "content": ".*class GraphQLClient.*"
+              }
+            ]
+          }
+        }
+      ],
+      "safeDefaults": {
+        "files": [
+          {
+            "path": "client.py",
+            "content": "# No client generated."
+          }
+        ],
+        "run_instructions": "No instructions."
+      },
+      "preCommitCommands": [
+        "pnpm lint",
+        "pnpm test",
+        "node scripts/validate_templates.js"
+      ],
+      "securityNotes": "Generated code interacts with external networks and should be reviewed for security vulnerabilities. Network Risk: True.",
+      "mappingExample": null,
+      "mcpTool": {
+        "name": "generateGraphqlClient",
+        "description": "Generates a GraphQL API client.",
+        "version": "1.0.0",
+        "httpRoute": "/generate/api-client-generator-graphql",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "graphqlSchema": {
+              "type": "string",
+              "description": "The GraphQL schema definition."
+            },
+            "query": {
+              "type": "string",
+              "description": "The GraphQL query to be executed."
+            },
+            "language": {
+              "type": "string",
+              "enum": [
+                "Python",
+                "TypeScript"
+              ],
+              "description": "The target programming language."
+            }
+          },
+          "required": [
+            "graphqlSchema",
+            "query",
+            "language"
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "run_instructions": {
+              "type": "string"
+            }
+          }
+        },
+        "timeout_seconds": 180,
+        "auth": {
+          "required": true,
+          "schemes": [
+            "apiKey"
+          ]
+        }
+      },
+      "mcphubRegisterPayload": "{\"name\":\"generateGraphqlClient\",\"description\":\"Generates a GraphQL API client.\",\"url\":\"http://template-mcp-adapter:3000/generate/api-client-generator-graphql\"}",
+      "healthCheck": {
+        "path": true,
+        "timeout": 5
+      }
+    },
+    {
+      "id": "api-client-generator-rest",
+      "title": "REST API Client Generator",
+      "description": "Generates a basic API client in Python or TypeScript for a given REST API specification (OpenAPI/Swagger).",
+      "templateType": "code",
+      "inputs": [
+        "{openapiSpecJson}",
+        "{language}"
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "content"
+              ]
+            }
+          },
+          "run_instructions": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "files"
+        ]
+      },
+      "requiredOutputKeys": [
+        "files"
+      ],
+      "exampleInput": {
+        "openapiSpecJson": {
+          "openapi": "3.0.0",
+          "info": {
+            "title": "Simple User API",
+            "version": "1.0.0"
+          },
+          "paths": {
+            "/users/{userId}": {
+              "get": {
+                "summary": "Get user by ID",
+                "parameters": [
+                  {
+                    "name": "userId",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "A user object."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "language": "Python"
+      },
+      "exampleOutput": {
+        "files": [
+          {
+            "path": "api_client.py",
+            "content": "import requests\n\nclass SimpleUserAPI:\n    def __init__(self, base_url='https://api.example.com'):\n        self.base_url = base_url\n\n    def get_user_by_id(self, user_id: str) -> dict:\n        \"\"\"Fetches a user by their ID.\"\"\"\n        url = f'{self.base_url}/users/{user_id}'\n        try:\n            response = requests.get(url)\n            response.raise_for_status()  # Raise an exception for bad status codes\n            return response.json()\n        except requests.exceptions.RequestException as e:\n            print(f'An error occurred: {e}')\n            return None"
+          },
+          {
+            "path": "main.py",
+            "content": "from api_client import SimpleUserAPI\n\nif __name__ == '__main__':\n    client = SimpleUserAPI()\n    user = client.get_user_by_id('123')\n    if user:\n        print(user)"
+          }
+        ],
+        "run_instructions": "1. Install dependencies: pip install requests\n2. Run the example: python main.py"
+      },
+      "placeholderMapper": [],
+      "dependencyTemplates": [],
+      "tags": [
+        "code-generation",
+        "api",
+        "rest",
+        "client",
+        "python",
+        "typescript"
+      ],
+      "version": "1.0.0",
+      "meta": {
+        "author": "jules-system",
+        "license": "MIT",
+        "created_at": "2025-10-03",
+        "recommended_runtime": {
+          "model": "gpt-4-code-interpreter",
+          "temperature": 0.1,
+          "max_tokens": 2000
+        },
+        "runtime_notes": "Requires a model with strong code generation capabilities and knowledge of OpenAPI specs."
+      },
+      "validationRules": [
+        "exampleOutput.files.length > 0",
+        "each file has a path and content"
+      ],
+      "testCases": [
+        {
+          "name": "TypeScript Client",
+          "input": {
+            "openapiSpecJson": {
+              "openapi": "3.0.0",
+              "info": {
+                "title": "Todo API",
+                "version": "1.0.0"
+              },
+              "paths": {
+                "/todos": {
+                  "get": {
+                    "summary": "List all todos"
+                  }
+                }
+              }
+            },
+            "language": "TypeScript"
+          },
+          "expectedOutputPattern": {
+            "files": [
+              {
+                "path": ".*\\.ts",
+                "content": ".*class TodoAPI.*"
+              }
+            ]
+          }
+        }
+      ],
+      "safeDefaults": {
+        "files": [
+          {
+            "path": "client.py",
+            "content": "# No client generated."
+          }
+        ],
+        "run_instructions": "No instructions."
+      },
+      "preCommitCommands": [
+        "pnpm lint",
+        "pnpm test",
+        "node scripts/validate_templates.js"
+      ],
+      "securityNotes": "Generated code interacts with external networks and should be reviewed for security vulnerabilities, such as improper handling of credentials or unsanitized inputs. Network Risk: True.",
+      "mappingExample": null,
+      "mcpTool": {
+        "name": "generateRestClient",
+        "description": "Generates a REST API client.",
+        "version": "1.0.0",
+        "httpRoute": "/generate/api-client-generator-rest",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "openapiSpecJson": {
+              "type": "object",
+              "description": "The OpenAPI/Swagger specification as a JSON object."
+            },
+            "language": {
+              "type": "string",
+              "enum": [
+                "Python",
+                "TypeScript"
+              ],
+              "description": "The target programming language."
+            }
+          },
+          "required": [
+            "openapiSpecJson",
+            "language"
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "run_instructions": {
+              "type": "string"
+            }
+          }
+        },
+        "timeout_seconds": 180,
+        "auth": {
+          "required": true,
+          "schemes": [
+            "apiKey"
+          ]
+        }
+      },
+      "mcphubRegisterPayload": "{\"name\":\"generateRestClient\",\"description\":\"Generates a REST API client.\",\"url\":\"http://template-mcp-adapter:3000/generate/api-client-generator-rest\"}",
+      "healthCheck": {
+        "path": true,
+        "timeout": 5
+      }
+    },
+    {
+      "id": "ci-config-generator",
+      "title": "CI Config Generator",
+      "description": "Generates a basic CI configuration file for a given project type and CI provider.",
+      "templateType": "code",
+      "inputs": [
+        "{projectType}",
+        "{ciProvider}"
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "configFile": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "content"
+            ]
+          },
+          "explanation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "configFile",
+          "explanation"
+        ]
+      },
+      "requiredOutputKeys": [
+        "configFile"
+      ],
+      "exampleInput": {
+        "projectType": "Node.js",
+        "ciProvider": "GitHub Actions"
+      },
+      "exampleOutput": {
+        "configFile": {
+          "path": ".github/workflows/ci.yml",
+          "content": "name: Node.js CI\n\non:\n  push:\n    branches: [ main ]\n  pull_request:\n    branches: [ main ]\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n\n    strategy:\n      matrix:\n        node-version: [16.x, 18.x, 20.x]\n\n    steps:\n    - uses: actions/checkout@v3\n    - name: Use Node.js ${{ matrix.node-version }}\n      uses: actions/setup-node@v3\n      with:\n        node-version: ${{ matrix.node-version }}\n    - run: npm ci\n    - run: npm run build --if-present\n    - run: npm test"
+        },
+        "explanation": "This GitHub Actions workflow defines a CI process for a Node.js project. It triggers on pushes and pull requests to the main branch. The 'build' job runs on an Ubuntu environment and tests the project against multiple Node.js versions (16, 18, and 20). The steps include checking out the code, setting up Node.js, installing dependencies with 'npm ci', running a build script if it exists, and executing the test suite."
+      },
+      "placeholderMapper": [],
+      "dependencyTemplates": [],
+      "tags": [
+        "ci",
+        "cd",
+        "devops",
+        "github-actions",
+        "gitlab-ci"
+      ],
+      "version": "1.0.0",
+      "meta": {
+        "author": "jules-system",
+        "license": "MIT",
+        "created_at": "2025-10-03",
+        "recommended_runtime": {
+          "model": "gpt-4-turbo",
+          "temperature": 0.2,
+          "max_tokens": 1500
+        },
+        "runtime_notes": "A model with knowledge of different CI/CD platforms and project build processes is required."
+      },
+      "validationRules": [
+        "exampleOutput.configFile.path contains 'yml' or 'yaml'"
+      ],
+      "testCases": [
+        {
+          "name": "Python with GitLab CI",
+          "input": {
+            "projectType": "Python",
+            "ciProvider": "GitLab CI"
+          },
+          "expectedOutputPattern": {
+            "configFile": {
+              "path": ".gitlab-ci.yml",
+              "content": ".*image: python.*"
+            }
+          }
+        }
+      ],
+      "safeDefaults": {
+        "configFile": {
+          "path": ".github/workflows/ci.yml",
+          "content": "# No CI config generated."
+        },
+        "explanation": "No explanation available."
+      },
+      "preCommitCommands": [
+        "pnpm lint",
+        "pnpm test",
+        "node scripts/validate_templates.js"
+      ],
+      "securityNotes": "CI configuration files can expose secrets if not handled correctly. Always use the CI provider's secrets management system for sensitive data like API keys and tokens. Do not hardcode secrets in the configuration file. Network Risk: True (CI runners often need network access).",
+      "mappingExample": null,
+      "mcpTool": {
+        "name": "generateCiConfig",
+        "description": "Generates a CI configuration file.",
+        "version": "1.0.0",
+        "httpRoute": "/generate/ci-config-generator",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectType": {
+              "type": "string",
+              "description": "The type of the project (e.g., 'Node.js', 'Python')."
+            },
+            "ciProvider": {
+              "type": "string",
+              "description": "The CI/CD provider (e.g., 'GitHub Actions', 'GitLab CI')."
+            }
+          },
+          "required": [
+            "projectType",
+            "ciProvider"
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "configFile": {
+              "type": "object"
+            },
+            "explanation": {
+              "type": "string"
+            }
+          }
+        },
+        "timeout_seconds": 90,
+        "auth": {
+          "required": true,
+          "schemes": [
+            "apiKey"
+          ]
+        }
+      },
+      "mcphubRegisterPayload": "{\"name\":\"generateCiConfig\",\"description\":\"Generates a CI configuration file.\",\"url\":\"http://template-mcp-adapter:3000/generate/ci-config-generator\"}",
+      "healthCheck": {
+        "path": true,
+        "timeout": 5
+      }
+    },
+    {
+      "id": "project-scaffolder",
+      "title": "Project Scaffolder",
+      "description": "Generates a basic project structure for a web application with a frontend and a backend.",
+      "templateType": "code",
+      "inputs": [
+        "{projectName}",
+        "{frontendFramework}",
+        "{backendFramework}"
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "content"
+              ]
+            }
+          },
+          "next_steps": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "files"
+        ]
+      },
+      "requiredOutputKeys": [
+        "files"
+      ],
+      "exampleInput": {
+        "projectName": "my-awesome-app",
+        "frontendFramework": "React",
+        "backendFramework": "Express"
+      },
+      "exampleOutput": {
+        "files": [
+          {
+            "path": "my-awesome-app/frontend/package.json",
+            "content": "{\n  \"name\": \"frontend\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"dependencies\": {\n    \"react\": \"^18.0.0\",\n    \"react-dom\": \"^18.0.0\"\n  }\n}"
+          },
+          {
+            "path": "my-awesome-app/frontend/src/App.js",
+            "content": "import React from 'react';\n\nfunction App() {\n  return <h1>Hello from React!</h1>;\n}\n\nexport default App;"
+          },
+          {
+            "path": "my-awesome-app/backend/package.json",
+            "content": "{\n  \"name\": \"backend\",\n  \"version\": \"1.0.0\",\n  \"main\": \"server.js\",\n  \"dependencies\": {\n    \"express\": \"^4.17.1\"\n  }\n}"
+          },
+          {
+            "path": "my-awesome-app/backend/server.js",
+            "content": "const express = require('express');\nconst app = express();\nconst port = 3001;\n\napp.get('/api', (req, res) => {\n  res.send({ message: 'Hello from Express!' });\n});\n\napp.listen(port, () => {\n  console.log(`Server listening on port ${port}`);\n});"
+          },
+          {
+            "path": "my-awesome-app/README.md",
+            "content": "# my-awesome-app\n\nThis project was scaffolded by an AI assistant."
+          }
+        ],
+        "next_steps": "1. Navigate to the 'frontend' directory and run 'npm install'.\n2. Navigate to the 'backend' directory and run 'npm install'.\n3. Start the frontend and backend servers."
+      },
+      "placeholderMapper": [],
+      "dependencyTemplates": [],
+      "tags": [
+        "code-generation",
+        "scaffolding",
+        "web-development",
+        "react",
+        "express"
+      ],
+      "version": "1.0.0",
+      "meta": {
+        "author": "jules-system",
+        "license": "MIT",
+        "created_at": "2025-10-03",
+        "recommended_runtime": {
+          "model": "gpt-4-code-interpreter",
+          "temperature": 0.2,
+          "max_tokens": 3000
+        },
+        "runtime_notes": "A model with a good understanding of different web frameworks and project structures is required."
+      },
+      "validationRules": [
+        "exampleOutput.files.length > 3"
+      ],
+      "testCases": [
+        {
+          "name": "Vue and Flask",
+          "input": {
+            "projectName": "my-vue-app",
+            "frontendFramework": "Vue",
+            "backendFramework": "Flask"
+          },
+          "expectedOutputPattern": {
+            "files": [
+              {
+                "path": ".*/frontend/.*",
+                "content": ".*vue.*"
+              },
+              {
+                "path": ".*/backend/.*",
+                "content": ".*flask.*"
+              }
+            ]
+          }
+        }
+      ],
+      "safeDefaults": {
+        "files": [
+          {
+            "path": "README.md",
+            "content": "# New Project"
+          }
+        ],
+        "next_steps": "No instructions."
+      },
+      "preCommitCommands": [
+        "pnpm lint",
+        "pnpm test",
+        "node scripts/validate_templates.js"
+      ],
+      "securityNotes": "The generated code is boilerplate and has low security risk, but dependencies should be audited. Network Risk: True (for backend server).",
+      "mappingExample": null,
+      "mcpTool": {
+        "name": "scaffoldProject",
+        "description": "Generates a project structure for a web application.",
+        "version": "1.0.0",
+        "httpRoute": "/generate/project-scaffolder",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectName": {
+              "type": "string",
+              "description": "The name of the project."
+            },
+            "frontendFramework": {
+              "type": "string",
+              "description": "The frontend framework to use."
+            },
+            "backendFramework": {
+              "type": "string",
+              "description": "The backend framework to use."
+            }
+          },
+          "required": [
+            "projectName",
+            "frontendFramework",
+            "backendFramework"
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "next_steps": {
+              "type": "string"
+            }
+          }
+        },
+        "timeout_seconds": 240,
+        "auth": {
+          "required": true,
+          "schemes": [
+            "apiKey"
+          ]
+        }
+      },
+      "mcphubRegisterPayload": "{\"name\":\"scaffoldProject\",\"description\":\"Generates a project structure for a web application.\",\"url\":\"http://template-mcp-adapter:3000/generate/project-scaffolder\"}",
+      "healthCheck": {
+        "path": true,
+        "timeout": 5
+      }
+    },
+    {
+      "id": "python-function-generator",
+      "title": "Python Function Generator",
+      "description": "Generates a complete Python function from a natural language description, including docstrings and type hints.",
+      "templateType": "code",
+      "inputs": [
+        "{functionDescription}",
+        "{pythonVersion}"
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "functionName": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "usageExample": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "functionName",
+          "code"
+        ]
+      },
+      "requiredOutputKeys": [
+        "code"
+      ],
+      "exampleInput": {
+        "functionDescription": "A function that takes a list of integers and returns a new list containing only the even numbers.",
+        "pythonVersion": "3.9"
+      },
+      "exampleOutput": {
+        "functionName": "filter_even_numbers",
+        "code": "from typing import List\n\ndef filter_even_numbers(numbers: List[int]) -> List[int]:\n    \"\"\"Filters a list of integers, returning only the even numbers.\n\n    Args:\n        numbers: A list of integers.\n\n    Returns:\n        A new list containing only the even integers from the input list.\n    \"\"\"\n    return [num for num in numbers if num % 2 == 0]",
+        "dependencies": [
+          "typing"
+        ],
+        "usageExample": "even_nums = filter_even_numbers([1, 2, 3, 4, 5, 6])\nprint(even_nums)  # Output: [2, 4, 6]"
+      },
+      "placeholderMapper": [],
+      "dependencyTemplates": [],
+      "tags": [
+        "code-generation",
+        "python",
+        "function",
+        "utility"
+      ],
+      "version": "1.0.0",
+      "meta": {
+        "author": "jules-system",
+        "license": "MIT",
+        "created_at": "2025-10-03",
+        "recommended_runtime": {
+          "model": "gpt-4-code-interpreter",
+          "temperature": 0.2,
+          "max_tokens": 1000
+        },
+        "runtime_notes": "A model with strong coding capabilities is required. The output should be directly executable Python code."
+      },
+      "validationRules": [
+        "exampleOutput.code includes 'def'",
+        "exampleOutput.code includes 'return'"
+      ],
+      "testCases": [
+        {
+          "name": "String manipulation function",
+          "input": {
+            "functionDescription": "A function to reverse a string.",
+            "pythonVersion": "3.8"
+          },
+          "expectedOutputPattern": {
+            "functionName": ".*reverse_string.*",
+            "code": ".*def reverse_string.*"
+          }
+        }
+      ],
+      "safeDefaults": {
+        "functionName": "my_function",
+        "code": "def my_function():\n    \"\"\"A default function.\"\"\"\n    pass",
+        "dependencies": [],
+        "usageExample": "my_function()"
+      },
+      "preCommitCommands": [
+        "pnpm lint",
+        "pnpm test",
+        "node scripts/validate_templates.js"
+      ],
+      "securityNotes": "Generated code should always be reviewed and tested before execution in a production environment. Network Risk: False, unless the function description involves networking.",
+      "mappingExample": null,
+      "mcpTool": {
+        "name": "generatePythonFunction",
+        "description": "Generates a Python function from a description.",
+        "version": "1.0.0",
+        "httpRoute": "/generate/python-function-generator",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "functionDescription": {
+              "type": "string",
+              "description": "A natural language description of what the function should do."
+            },
+            "pythonVersion": {
+              "type": "string",
+              "description": "The target Python version (e.g., '3.9')."
+            }
+          },
+          "required": [
+            "functionDescription"
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "functionName": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "dependencies": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "usageExample": {
+              "type": "string"
+            }
+          }
+        },
+        "timeout_seconds": 120,
+        "auth": {
+          "required": true,
+          "schemes": [
+            "apiKey"
+          ]
+        }
+      },
+      "mcphubRegisterPayload": "{\"name\":\"generatePythonFunction\",\"description\":\"Generates a Python function from a description.\",\"url\":\"http://template-mcp-adapter:3000/generate/python-function-generator\"}",
+      "healthCheck": {
+        "path": true,
+        "timeout": 5
+      }
+    },
+    {
+      "id": "refactor-for-performance",
+      "title": "Refactor for Performance",
+      "description": "Refactors a piece of code to improve its performance based on a given issue.",
+      "templateType": "code",
+      "inputs": [
+        "{originalCode}",
+        "{performanceIssue}",
+        "{language}"
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "refactoredCode": {
+            "type": "string"
+          },
+          "explanation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refactoredCode",
+          "explanation"
+        ]
+      },
+      "requiredOutputKeys": [
+        "refactoredCode",
+        "explanation"
+      ],
+      "exampleInput": {
+        "originalCode": "def create_list(n):\n    result = []\n    for i in range(n):\n        result += [i]\n    return result",
+        "performanceIssue": "This function is slow for large 'n' due to list concatenation in a loop.",
+        "language": "Python"
+      },
+      "exampleOutput": {
+        "refactoredCode": "def create_list(n):\n    return [i for i in range(n)]",
+        "explanation": "The original code uses list concatenation (`result += [i]`) inside a loop. This is inefficient because it creates a new list in every iteration. The refactored code uses a list comprehension, which is a more Pythonic and significantly faster way to build a list, as it allocates the list size once and appends elements, avoiding the overhead of repeated list creation."
+      },
+      "placeholderMapper": [],
+      "dependencyTemplates": [],
+      "tags": [
+        "code-optimization",
+        "performance",
+        "refactoring",
+        "python",
+        "javascript"
+      ],
+      "version": "1.0.0",
+      "meta": {
+        "author": "jules-system",
+        "license": "MIT",
+        "created_at": "2025-10-03",
+        "recommended_runtime": {
+          "model": "gpt-4-code-interpreter",
+          "temperature": 0.2,
+          "max_tokens": 2000
+        },
+        "runtime_notes": "A model with a deep understanding of language-specific performance optimizations is required."
+      },
+      "validationRules": [
+        "exampleOutput.refactoredCode != exampleInput.originalCode"
+      ],
+      "testCases": [
+        {
+          "name": "JavaScript DOM Manipulation",
+          "input": {
+            "originalCode": "for (let i = 0; i < 1000; i++) {\n  document.getElementById('container').innerHTML += '<div>' + i + '</div>';\n}",
+            "performanceIssue": "Repeatedly manipulating innerHTML in a loop causes multiple reflows and repaints, which is very slow.",
+            "language": "JavaScript"
+          },
+          "expectedOutputPattern": {
+            "refactoredCode": ".*DocumentFragment.*"
+          }
+        }
+      ],
+      "safeDefaults": {
+        "refactoredCode": "",
+        "explanation": "No performance improvements were identified."
+      },
+      "preCommitCommands": [
+        "pnpm lint",
+        "pnpm test",
+        "node scripts/validate_templates.js"
+      ],
+      "securityNotes": "Generated code should be thoroughly tested for correctness and performance before use. Network Risk: False.",
+      "mappingExample": null,
+      "mcpTool": {
+        "name": "refactorForPerformance",
+        "description": "Refactors code to improve performance.",
+        "version": "1.0.0",
+        "httpRoute": "/generate/refactor-for-performance",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "originalCode": {
+              "type": "string",
+              "description": "The original code to be refactored."
+            },
+            "performanceIssue": {
+              "type": "string",
+              "description": "A description of the performance problem."
+            },
+            "language": {
+              "type": "string",
+              "description": "The programming language of the code."
+            }
+          },
+          "required": [
+            "originalCode",
+            "performanceIssue",
+            "language"
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "refactoredCode": {
+              "type": "string"
+            },
+            "explanation": {
+              "type": "string"
+            }
+          }
+        },
+        "timeout_seconds": 120,
+        "auth": {
+          "required": true,
+          "schemes": [
+            "apiKey"
+          ]
+        }
+      },
+      "mcphubRegisterPayload": "{\"name\":\"refactorForPerformance\",\"description\":\"Refactors code to improve performance.\",\"url\":\"http://template-mcp-adapter:3000/generate/refactor-for-performance\"}",
+      "healthCheck": {
+        "path": true,
+        "timeout": 5
+      }
+    },
+    {
+      "id": "test-suite-builder",
+      "title": "Test Suite Builder",
+      "description": "Generates a test suite for a given function, including basic, edge case, and error handling tests.",
+      "templateType": "code",
+      "inputs": [
+        "{functionCode}",
+        "{testFramework}"
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "testFile": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "content"
+            ]
+          },
+          "run_instructions": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "testFile"
+        ]
+      },
+      "requiredOutputKeys": [
+        "testFile"
+      ],
+      "exampleInput": {
+        "functionCode": "from typing import List\n\ndef filter_even_numbers(numbers: List[int]) -> List[int]:\n    \"\"\"Filters a list of integers, returning only the even numbers.\"\"\"\n    if not isinstance(numbers, list):\n        raise TypeError(\"Input must be a list\")\n    return [num for num in numbers if num % 2 == 0]",
+        "testFramework": "pytest"
+      },
+      "exampleOutput": {
+        "testFile": {
+          "path": "test_filter_even_numbers.py",
+          "content": "import pytest\nfrom main import filter_even_numbers\n\ndef test_basic_filtering():\n    assert filter_even_numbers([1, 2, 3, 4, 5, 6]) == [2, 4, 6]\n\ndef test_empty_list():\n    assert filter_even_numbers([]) == []\n\ndef test_all_even_numbers():\n    assert filter_even_numbers([2, 4, 6, 8]) == [2, 4, 6, 8]\n\ndef test_no_even_numbers():\n    assert filter_even_numbers([1, 3, 5, 7]) == []\n\ndef test_with_zero():\n    assert filter_even_numbers([0, 1, 2]) == [0, 2]\n\ndef test_invalid_input_type():\n    with pytest.raises(TypeError):\n        filter_even_numbers(\"not a list\")"
+        },
+        "run_instructions": "1. Save the function to 'main.py'.\n2. Install pytest: pip install pytest\n3. Run the tests: pytest test_filter_even_numbers.py"
+      },
+      "placeholderMapper": [
+        {
+          "targetInput": "{functionCode}",
+          "recommendedSource": "python-function-generator",
+          "sourcePath": "$.code"
+        }
+      ],
+      "dependencyTemplates": [
+        "python-function-generator"
+      ],
+      "tags": [
+        "code-generation",
+        "testing",
+        "pytest",
+        "jest",
+        "quality-assurance"
+      ],
+      "version": "1.0.0",
+      "meta": {
+        "author": "jules-system",
+        "license": "MIT",
+        "created_at": "2025-10-03",
+        "recommended_runtime": {
+          "model": "gpt-4-code-interpreter",
+          "temperature": 0.3,
+          "max_tokens": 2000
+        },
+        "runtime_notes": "A model that understands unit testing principles and different test frameworks is required."
+      },
+      "validationRules": [
+        "exampleOutput.testFile.content contains 'def test_'"
+      ],
+      "testCases": [
+        {
+          "name": "Jest Test Suite",
+          "input": {
+            "functionCode": "function sum(a, b) { return a + b; }",
+            "testFramework": "Jest"
+          },
+          "expectedOutputPattern": {
+            "testFile": {
+              "path": ".*\\.test\\.js",
+              "content": ".*test\\('adds 1 \\+ 2 to equal 3', \\(\\) => \\{.*"
+            }
+          }
+        }
+      ],
+      "safeDefaults": {
+        "testFile": {
+          "path": "test_default.py",
+          "content": "# No tests generated."
+        },
+        "run_instructions": "No instructions."
+      },
+      "preCommitCommands": [
+        "pnpm lint",
+        "pnpm test",
+        "node scripts/validate_templates.js"
+      ],
+      "securityNotes": "Generated test code is generally safe as it runs in a controlled test environment. However, it should be reviewed to ensure it doesn't contain malicious code if the input function is untrusted. Network Risk: False.",
+      "mappingExample": null,
+      "mcpTool": {
+        "name": "buildTestSuite",
+        "description": "Generates a test suite for a given function.",
+        "version": "1.0.0",
+        "httpRoute": "/generate/test-suite-builder",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "functionCode": {
+              "type": "string",
+              "description": "The code of the function to be tested."
+            },
+            "testFramework": {
+              "type": "string",
+              "enum": [
+                "pytest",
+                "Jest"
+              ],
+              "description": "The testing framework to use."
+            }
+          },
+          "required": [
+            "functionCode",
+            "testFramework"
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "testFile": {
+              "type": "object"
+            },
+            "run_instructions": {
+              "type": "string"
+            }
+          }
+        },
+        "timeout_seconds": 180,
+        "auth": {
+          "required": true,
+          "schemes": [
+            "apiKey"
+          ]
+        }
+      },
+      "mcphubRegisterPayload": "{\"name\":\"buildTestSuite\",\"description\":\"Generates a test suite for a given function.\",\"url\":\"http://template-mcp-adapter:3000/generate/test-suite-builder\"}",
+      "healthCheck": {
+        "path": true,
+        "timeout": 5
+      }
+    }
+  ],
+  "adapters": {
+    "ts": {
+      "files": [
+        {
+          "path": "packages/mcp-adapters/template-mcp/package.json",
+          "content": "{\n  \"name\": \"template-mcp-adapter\",\n  \"version\": \"1.0.0\",\n  \"description\": \"MCP adapter for the template generation service.\",\n  \"main\": \"dist/server.js\",\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"start\": \"node dist/server.js\",\n    \"dev\": \"ts-node-dev --respawn --transpile-only src/server.ts\",\n    \"test\": \"jest\"\n  },\n  \"dependencies\": {\n    \"ajv\": \"^8.12.0\",\n    \"axios\": \"^1.6.0\",\n    \"body-parser\": \"^1.20.2\",\n    \"dotenv\": \"^16.3.1\",\n    \"express\": \"^4.18.2\",\n    \"express-rate-limit\": \"^7.1.5\",\n    \"prom-client\": \"^15.1.0\",\n    \"winston\": \"^3.11.0\"\n  },\n  \"devDependencies\": {\n    \"@types/express\": \"^4.17.21\",\n    \"@types/jest\": \"^29.5.8\",\n    \"@types/node\": \"^20.9.0\",\n    \"jest\": \"^29.7.0\",\n    \"ts-jest\": \"^29.1.1\",\n    \"ts-node-dev\": \"^2.0.0\",\n    \"typescript\": \"^5.2.2\"\n  }\n}"
+        },
+        {
+          "path": "packages/mcp-adapters/template-mcp/README.md",
+          "content": "# Template MCP Adapter\n\nThis service acts as an adapter to expose the template generation library as a set of MCP (Model Context Protocol) compliant tools. It loads templates from the file system, exposes them via a RESTful API, and can register them with an MCPHub instance for discovery.\n\n## Features\n\n- **Template Loading**: Dynamically loads all templates from the `packages/core/src/services/template/default-templates` directory.\n- **REST API**: Exposes endpoints for listing, generating, and validating templates.\n- **MCPHub Integration**: Automatically registers loaded templates as tools with a configured MCPHub instance.\n- **Authentication**: Basic API key authentication to secure the endpoints.\n- **Rate Limiting**: Protects the service from abuse with a simple rate limiter.\n- **Observability**: Exposes a `/metrics` endpoint for Prometheus scraping and structured JSON logging.\n- **Graceful Shutdown**: Handles `SIGTERM` signals to shut down gracefully.\n\n## Getting Started\n\n### Prerequisites\n\n- Node.js (v18 or later)\n- An instance of MCPHub (optional, for service discovery)\n- A running LLM service (or use the mock response for testing)\n\n### Installation\n\n1.  **Clone the repository** (if you haven't already).\n2.  **Install dependencies**:\n    ```bash\n    npm install\n    ```\n\n### Configuration\n\nCreate a `.env` file in the root of this package (`packages/mcp-adapters/template-mcp`) and add the following environment variables:\n\n```env\n# Server Configuration\nPORT=3000\n\n# Security\nADAPTER_API_KEY=your_secret_api_key_here # A secure, random key to access this adapter\n# To generate a key, you can use: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"\n\n# MCPHub Integration (Optional)\nMCPHUB_URL=http://mcphub:8080/api/v1 # URL of your MCPHub instance\nMCPHUB_API_KEY=your_mcphub_api_key # API key for authenticating with MCPHub\n\n# Logging\nLOG_LEVEL=info # e.g., 'info', 'warn', 'error', 'debug'\nNODE_ENV=development # 'development' or 'production'\n```\n\n### Running the Adapter\n\n#### Development\n\nFor development with live reloading:\n\n```bash\nnpm run dev\n```\n\nThis will start the server using `ts-node-dev`.\n\n#### Production\n\nFor production use, first build the TypeScript code, then run the compiled JavaScript:\n\n```bash\n# 1. Build the project\nnpm run build\n\n# 2. Start the server\nnpm start\n```\n\n## API Endpoints\n\nAll endpoints require an `X-API-KEY` header for authentication.\n\n-   **`GET /templates`**: Lists all loaded templates.\n-   **`POST /generate/:templateId`**: Generates content using the specified template. The request body should contain the inputs for the template.\n-   **`POST /validate/:templateId`**: Validates an output against the template's output schema.\n-   **`GET /internal/health`**: A health check endpoint that returns `{ \"status\": \"UP\" }`.\n-   **`GET /metrics`**: Exposes metrics in Prometheus format.\n\n### Example: Generating Content\n\n```bash\ncurl -X POST http://localhost:3000/generate/blog-post-outline-generator \\\n  -H \"Content-Type: application/json\" \\\n  -H \"X-API-KEY: your_secret_api_key_here\" \\\n  -d '{\n        \"topic\": \"The Future of AI\",\n        \"targetAudience\": \"General Audience\"\n      }'\n```\n\n## Docker\n\nA `Dockerfile` is provided to containerize this adapter.\n\n### Building the Image\n\n```bash\ndocker build -t template-mcp-adapter .\n```\n\n### Running the Container\n\n```bash\ndocker run -d \\\n  -p 3000:3000 \\\n  --name template-adapter \\\n  -e PORT=3000 \\\n  -e ADAPTER_API_KEY=your_secret_api_key_here \\\n  -e MCPHUB_URL=http://your_mcphub_url \\\n  -e MCPHUB_API_KEY=your_mcphub_api_key \\\n  template-mcp-adapter\n```\n\nMake sure to link this container to the same network as your MCPHub instance if you are using Docker Compose."
+        },
+        {
+          "path": "packages/mcp-adapters/template-mcp/Dockerfile",
+          "content": "# Use an official Node.js runtime as a parent image\nFROM node:18-slim\n\n# Set the working directory in the container\nWORKDIR /usr/src/app\n\n# Copy package.json and package-lock.json (or pnpm-lock.yaml)\nCOPY package.json ./\n# If using pnpm, you would copy pnpm-lock.yaml instead\n# COPY pnpm-lock.yaml ./\n\n# Install app dependencies\n# Using npm for simplicity in this example. If pnpm is preferred, the RUN command would change.\nRUN npm install\n\n# Copy the rest of the application's source code from your context\nCOPY . .\n\n# Build the TypeScript source code\nRUN npm run build\n\n# Make your port available to the world outside this container\nEXPOSE 3000\n\n# Define the command to run your app\nCMD [ \"node\", \"dist/server.js\" ]"
+        },
+        {
+          "path": "packages/mcp-adapters/template-mcp/src/server.ts",
+          "content": "import express, { Request, Response, NextFunction } from 'express';\nimport bodyParser from 'body-parser';\nimport { rateLimit } from 'express-rate-limit';\nimport promClient from 'prom-client';\nimport { TemplateLoader } from './loader';\nimport { TemplateValidator } from './validator';\nimport { registerWithMcphub } from './mcp-register';\nimport { logger } from './logger';\nimport 'dotenv/config';\n\nconst app = express();\nconst port = process.env.PORT || 3000;\n\n// --- Globals ---\nconst templateLoader = new TemplateLoader();\nconst templateValidator = new TemplateValidator();\n\n// --- Middleware ---\napp.use(bodyParser.json());\n\n// Basic API Key Authentication\nconst apiKeyAuth = (req: Request, res: Response, next: NextFunction) => {\n    const apiKey = req.get('X-API-KEY');\n    if (!apiKey || apiKey !== process.env.ADAPTER_API_KEY) {\n        logger.warn('Unauthorized access attempt', { ip: req.ip });\n        return res.status(401).json({ error: 'Unauthorized' });\n    }\n    next();\n};\n\n// Rate Limiting\nconst limiter = rateLimit({\n    windowMs: 15 * 60 * 1000, // 15 minutes\n    max: 100, // Limit each IP to 100 requests per windowMs\n    standardHeaders: true,\n    legacyHeaders: false,\n    handler: (req, res) => {\n        logger.warn('Rate limit exceeded', { ip: req.ip, path: req.path });\n        res.status(429).json({ message: 'Too many requests, please try again later.' });\n    },\n});\n\napp.use(limiter);\napp.use(apiKeyAuth); // Apply auth to all routes after this\n\n// --- Metrics ---\nconst register = new promClient.Registry();\npromClient.collectDefaultMetrics({ register });\n\nconst httpRequestDurationMicroseconds = new promClient.Histogram({\n    name: 'http_request_duration_seconds',\n    help: 'Duration of HTTP requests in seconds',\n    labelNames: ['method', 'route', 'code'],\n    buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10]\n});\nregister.registerMetric(httpRequestDurationMicroseconds);\n\n\n// --- Routes ---\napp.get('/internal/health', (req: Response, res: Response) => {\n    res.status(200).json({ status: 'UP' });\n});\n\napp.get('/metrics', async (req: Response, res: Response) => {\n    res.setHeader('Content-Type', register.contentType);\n    res.end(await register.metrics());\n});\n\napp.get('/templates', (req: Request, res: Response) => {\n    const end = httpRequestDurationMicroseconds.startTimer();\n    try {\n        const templates = templateLoader.listTemplates();\n        res.json(templates);\n        end({ route: '/templates', code: 200, method: 'GET' });\n    } catch (error) {\n        logger.error('Failed to list templates', { error });\n        res.status(500).json({ error: 'Failed to load templates' });\n        end({ route: '/templates', code: 500, method: 'GET' });\n    }\n});\n\napp.post('/generate/:templateId', async (req: Request, res: Response) => {\n    const { templateId } = req.params;\n    const end = httpRequestDurationMicroseconds.startTimer();\n    const start = Date.now();\n    \n    try {\n        const template = templateLoader.getTemplate(templateId);\n        if (!template) {\n            return res.status(404).json({ error: `Template '${templateId}' not found.` });\n        }\n\n        // Mock LLM call for testing\n        if (process.env.NODE_ENV === 'test') {\n            logger.info('Using mock LLM response for testing', { templateId });\n            res.json({\n                status: 'ok',\n                output: template.exampleOutput,\n                validation: { status: 'ok' },\n                safeDefaultsUsed: false,\n            });\n        } else {\n            // Placeholder for actual LLM runner function\n            // const result = await runLlm(template, req.body);\n            // res.json(result);\n            logger.info('Simulating LLM call', { templateId });\n            await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network latency\n            res.json({\n                status: 'ok',\n                output: template.exampleOutput,\n                validation: { status: 'ok' },\n                safeDefaultsUsed: false,\n            });\n        }\n\n        const duration = Date.now() - start;\n        logger.info('Generation request successful', { templateId, duration, status: 'ok' });\n        end({ route: `/generate/${templateId}`, code: 200, method: 'POST' });\n    } catch (error) {\n        const duration = Date.now() - start;\n        logger.error('Generation request failed', { templateId, duration, status: 'error', error });\n        res.status(500).json({ status: 'error', message: 'An internal error occurred.' });\n        end({ route: `/generate/${templateId}`, code: 500, method: 'POST' });\n    }\n});\n\napp.post('/validate/:templateId', (req: Request, res: Response) => {\n    const { templateId } = req.params;\n    const { output } = req.body;\n    try {\n        const template = templateLoader.getTemplate(templateId);\n        if (!template) {\n            return res.status(404).json({ error: `Template '${templateId}' not found.` });\n        }\n        const validationResult = templateValidator.validate(template, output);\n        res.json(validationResult);\n    } catch (error) {\n        logger.error('Validation request failed', { templateId, error });\n        res.status(500).json({ error: 'Failed to validate output.' });\n    }\n});\n\n// --- Server Initialization ---\nconst startServer = async () => {\n    try {\n        await templateLoader.loadTemplates();\n        logger.info(`Loaded ${templateLoader.listTemplates().length} templates.`);\n        \n        if (process.env.MCPHUB_URL && process.env.MCPHUB_API_KEY) {\n            await registerWithMcphub(templateLoader.getTemplatesAsMcpTools());\n        } else {\n            logger.warn('MCPHub URL or API Key not set. Skipping registration.');\n        }\n\n        const server = app.listen(port, () => {\n            logger.info(`Server listening on port ${port}`);\n        });\n\n        // Graceful shutdown\n        process.on('SIGTERM', () => {\n            logger.info('SIGTERM signal received: closing HTTP server');\n            server.close(() => {\n                logger.info('HTTP server closed');\n                process.exit(0);\n            });\n        });\n\n    } catch (error) {\n        logger.error('Failed to start server', { error });\n        process.exit(1);\n    }\n};\n\nstartServer();"
+        },
+        {
+          "path": "packages/mcp-adapters/template-mcp/src/loader.ts",
+          "content": "import fs from 'fs/promises';\nimport path from 'path';\nimport { logger } from './logger';\n\n// This is a simplified interface. The actual template structure is much richer.\ninterface Template {\n    id: string;\n    title: string;\n    description: string;\n    templateType: string;\n    inputs: string[];\n    outputSchema: object;\n    exampleOutput: object;\n    mcpTool?: object;\n}\n\nexport class TemplateLoader {\n    private templates: Map<string, Template> = new Map();\n    private readonly templatesDir = path.join(__dirname, '../../../../core/src/services/template/default-templates');\n\n    public async loadTemplates(): Promise<void> {\n        try {\n            const categories = await fs.readdir(this.templatesDir);\n            for (const category of categories) {\n                const categoryPath = path.join(this.templatesDir, category);\n                const stats = await fs.stat(categoryPath);\n\n                if (stats.isDirectory()) {\n                    const files = await fs.readdir(categoryPath);\n                    for (const file of files) {\n                        if (file.endsWith('.json')) {\n                            const filePath = path.join(categoryPath, file);\n                            try {\n                                const fileContent = await fs.readFile(filePath, 'utf-8');\n                                const template: Template = JSON.parse(fileContent);\n                                if (template.id) {\n                                    this.templates.set(template.id, template);\n                                } else {\n                                    logger.warn(`Template file is missing an id: ${filePath}`);\n                                }\n                            } catch (err) {\n                                logger.error(`Failed to load or parse template file: ${filePath}`, { error: err });\n                            }\n                        }\n                    }\n                }\n            }\n            logger.info(`Successfully loaded ${this.templates.size} templates.`);\n        } catch (error) {\n            logger.error('Failed to read templates directory', { path: this.templatesDir, error });\n            throw new Error('Could not load templates.');\n        }\n    }\n\n    public getTemplate(id: string): Template | undefined {\n        return this.templates.get(id);\n    }\n\n    public listTemplates(): Template[] {\n        return Array.from(this.templates.values());\n    }\n\n    public getTemplatesAsMcpTools(): any[] {\n        return this.listTemplates()\n            .filter(t => t.mcpTool)\n            .map(t => ({\n                ...t.mcpTool,\n                id: t.id, // Ensure the template ID is part of the payload\n            }));\n    }\n}"
+        },
+        {
+          "path": "packages/mcp-adapters/template-mcp/src/validator.ts",
+          "content": "import Ajv, { ErrorObject } from 'ajv';\n\n// A simplified template interface for validation purposes\ninterface Template {\n    id: string;\n    outputSchema: object;\n    validationRules?: string[];\n}\n\ninterface ValidationResult {\n    valid: boolean;\n    errors?: ErrorObject[] | null;\n    customRuleErrors?: string[];\n}\n\nexport class TemplateValidator {\n    private ajv: Ajv;\n\n    constructor() {\n        this.ajv = new Ajv();\n    }\n\n    public validate(template: Template, output: any): ValidationResult {\n        try {\n            const validate = this.ajv.compile(template.outputSchema);\n            const valid = validate(output);\n\n            if (!valid) {\n                return {\n                    valid: false,\n                    errors: validate.errors,\n                };\n            }\n            \n            // Placeholder for running custom validation rules if any\n            const customRuleErrors = this.runCustomValidations(template, output);\n            if (customRuleErrors.length > 0) {\n                return {\n                    valid: false,\n                    customRuleErrors,\n                };\n            }\n\n            return { valid: true };\n        } catch (error) {\n            return {\n                valid: false,\n                customRuleErrors: [`Validator setup failed: ${(error as Error).message}`],\n            };\n        }\n    }\n\n    private runCustomValidations(template: Template, output: any): string[] {\n        const errors: string[] = [];\n        if (!template.validationRules) {\n            return errors;\n        }\n\n        // This is a placeholder for a more robust rule engine.\n        // For this example, we'll just check for a few hardcoded rules.\n        template.validationRules.forEach(rule => {\n            if (rule === \"exampleOutput.sections.length >= 3\" && (!output.sections || output.sections.length < 3)) {\n                errors.push(\"Validation failed: Must have at least 3 sections.\");\n            }\n            if (rule === \"each section has an h2\" && output.sections) {\n                if (!output.sections.every((s: any) => s.h2)) {\n                     errors.push(\"Validation failed: Not every section has an H2 title.\");\n                }\n            }\n        });\n\n        return errors;\n    }\n}"
+        },
+        {
+          "path": "packages/mcp-adapters/template-mcp/src/mcp-register.ts",
+          "content": "import axios from 'axios';\nimport { logger } from './logger';\n\nconst mcphubUrl = process.env.MCPHUB_URL;\nconst apiKey = process.env.MCPHUB_API_KEY;\n\ninterface McpTool {\n    id: string;\n    name: string;\n    description: string;\n    // Add other fields from the mcpTool schema\n}\n\nexport async function registerWithMcphub(tools: McpTool[]): Promise<void> {\n    if (!mcphubUrl || !apiKey) {\n        logger.error('MCPHUB_URL or MCPHUB_API_KEY is not defined. Cannot register tools.');\n        return;\n    }\n\n    logger.info(`Registering ${tools.length} tools with MCPHub at ${mcphubUrl}`);\n\n    for (const tool of tools) {\n        const payload = {\n            id: `template-adapter-${tool.id}`, // Create a unique ID for the hub\n            name: tool.name,\n            description: tool.description,\n            url: `http://template-mcp-adapter:${process.env.PORT || 3000}/generate/${tool.id}`,\n            // In a real scenario, you'd pull more metadata from the tool object\n            // and conform to the MCPHub registration schema.\n            metadata: {\n                adapter: 'template-mcp-adapter',\n                templateId: tool.id\n            }\n        };\n\n        try {\n            const response = await axios.post(`${mcphubUrl}/register`, payload, {\n                headers: {\n                    'Content-Type': 'application/json',\n                    'X-API-KEY': apiKey,\n                },\n            });\n\n            if (response.status === 200 || response.status === 201) {\n                logger.info(`Successfully registered tool: ${tool.name} (template: ${tool.id})`);\n            } else {\n                logger.warn(`Failed to register tool ${tool.name}. Status: ${response.status}`, { responseData: response.data });\n            }\n        } catch (error) {\n            logger.error(`Error registering tool ${tool.name} with MCPHub`, { error: (error as Error).message });\n        }\n    }\n}"
+        },
+        {
+          "path": "packages/mcp-adapters/template-mcp/src/logger.ts",
+          "content": "import winston from 'winston';\n\nconst { combine, timestamp, json, errors } = winston.format;\n\nexport const logger = winston.createLogger({\n    level: process.env.LOG_LEVEL || 'info',\n    format: combine(\n        errors({ stack: true }), // Log stack traces\n        timestamp(),\n        json() // Output logs in JSON format\n    ),\n    transports: [\n        new winston.transports.Console(),\n    ],\n    // Do not exit on handled exceptions\n    exitOnError: false,\n});\n\n// If not in production, also log to the console in a more readable format\nif (process.env.NODE_ENV !== 'production') {\n    logger.add(new winston.transports.Console({\n        format: winston.format.combine(\n            winston.format.colorize(),\n            winston.format.simple()\n        ),\n    }));\n}"
+        }
+      ]
+    },
+    "py": {
+      "files": [
+        {
+          "path": "packages/mcp-adapters/template-mcp-py/Dockerfile",
+          "content": "# Use an official Python runtime as a parent image\nFROM python:3.9-slim\n\n# Set the working directory in the container\nWORKDIR /usr/src/app\n\n# Copy the requirements file into the container\nCOPY requirements.txt ./\n\n# Install any needed packages specified in requirements.txt\nRUN pip install --no-cache-dir -r requirements.txt\n\n# Copy the rest of the application's source code from your context\nCOPY . .\n\n# Make port 80 available to the world outside this container\nEXPOSE 3001\n\n# Define environment variables\nENV ADAPTER_API_KEY your_secret_api_key_here\nENV PORT 3001\n\n# Run server.py when the container launches\nCMD [\"uvicorn\", \"server:app\", \"--host\", \"0.0.0.0\", \"--port\", \"3001\"]"
+        },
+        {
+          "path": "packages/mcp-adapters/template-mcp-py/requirements.txt",
+          "content": "fastapi\nuvicorn\nrequests\npython-dotenv\naiofiles\nwatchdog"
+        },
+        {
+          "path": "packages/mcp-adapters/template-mcp-py/server.py",
+          "content": "import os\nimport uvicorn\nimport asyncio\nfrom fastapi import FastAPI, Request, HTTPException\nfrom dotenv import load_dotenv\nimport aiofiles\nimport json\nfrom loader import TemplateLoader\nimport requests\n\nload_dotenv()\n\napp = FastAPI()\ntemplate_loader = TemplateLoader()\n\nAPI_KEY = os.getenv(\"ADAPTER_API_KEY\")\nMCPHUB_URL = os.getenv(\"MCPHUB_URL\")\nMCPHUB_API_KEY = os.getenv(\"MCPHUB_API_KEY\")\nPORT = int(os.getenv(\"PORT\", 3001))\n\n@app.middleware(\"http\")\nasync def api_key_auth(request: Request, call_next):\n    if request.url.path not in [\"/internal/health\"]:\n        api_key = request.headers.get(\"X-API-KEY\")\n        if not api_key or api_key != API_KEY:\n            return HTTPException(status_code=401, detail=\"Unauthorized\")\n    response = await call_next(request)\n    return response\n\n@app.on_event(\"startup\")\nasync def startup_event():\n    await template_loader.load_templates()\n    print(f\"Loaded {len(template_loader.list_templates())} templates.\")\n    if MCPHUB_URL and MCPHUB_API_KEY:\n        asyncio.create_task(register_with_mcphub())\n    else:\n        print(\"MCPHub URL or API Key not set. Skipping registration.\")\n\nasync def register_with_mcphub():\n    tools = template_loader.get_templates_as_mcp_tools()\n    for tool in tools:\n        payload = {\n            \"id\": f\"template-adapter-py-{tool.get('id')}\",\n            \"name\": tool.get('name'),\n            \"description\": tool.get('description'),\n            \"url\": f\"http://template-mcp-py-adapter:{PORT}/generate/{tool.get('id')}\",\n            \"metadata\": {\n                \"adapter\": \"template-mcp-py-adapter\",\n                \"templateId\": tool.get('id')\n            }\n        }\n        try:\n            requests.post(\n                f\"{MCPHUB_URL}/register\",\n                json=payload,\n                headers={\"X-API-KEY\": MCPHUB_API_KEY}\n            )\n            print(f\"Registered tool: {tool.get('name')}\")\n        except Exception as e:\n            print(f\"Failed to register tool {tool.get('name')}: {e}\")\n\n\n@app.get(\"/internal/health\")\ndef health_check():\n    return {\"status\": \"UP\"}\n\n@app.get(\"/templates\")\n@app.post(\"/template.list\")\ndef list_templates():\n    return template_loader.list_templates()\n\n@app.post(\"/generate/{template_id}\")\n@app.post(\"/template.generate\")\nasync def generate(request: Request):\n    body = await request.json()\n    template_id = body.get(\"template_id\") or request.path_params.get(\"template_id\")\n    \n    if not template_id:\n        raise HTTPException(status_code=400, detail=\"template_id is required.\")\n\n    template = template_loader.get_template(template_id)\n    if not template:\n        raise HTTPException(status_code=404, detail=f\"Template '{template_id}' not found.\")\n\n    # Mock LLM call\n    await asyncio.sleep(0.5) # Simulate network latency\n    return {\n        \"status\": \"ok\",\n        \"output\": template.get(\"exampleOutput\", {}),\n        \"validation\": {\"status\": \"ok\"},\n        \"safeDefaultsUsed\": False,\n    }\n\n\nif __name__ == \"__main__\":\n    uvicorn.run(app, host=\"0.0.0.0\", port=PORT)"
+        },
+        {
+          "path": "packages/mcp-adapters/template-mcp-py/loader.py",
+          "content": "import os\nimport json\nimport aiofiles\nfrom typing import List, Dict, Optional\n\nclass TemplateLoader:\n    def __init__(self):\n        self.templates: Dict[str, Dict] = {}\n        self.templates_dir = os.path.abspath(os.path.join(__file__, '../../../../core/src/services/template/default-templates'))\n\n    async def load_templates(self):\n        print(f\"Loading templates from: {self.templates_dir}\")\n        if not os.path.isdir(self.templates_dir):\n            print(f\"Error: Templates directory not found at {self.templates_dir}\")\n            return\n\n        for category in os.listdir(self.templates_dir):\n            category_path = os.path.join(self.templates_dir, category)\n            if os.path.isdir(category_path):\n                for filename in os.listdir(category_path):\n                    if filename.endswith('.json'):\n                        file_path = os.path.join(category_path, filename)\n                        try:\n                            async with aiofiles.open(file_path, mode='r', encoding='utf-8') as f:\n                                content = await f.read()\n                                template = json.loads(content)\n                                if 'id' in template:\n                                    self.templates[template['id']] = template\n                                else:\n                                    print(f\"Warning: Template file is missing an id: {file_path}\")\n                        except Exception as e:\n                            print(f\"Failed to load or parse template file: {file_path}, Error: {e}\")\n        \n    def get_template(self, template_id: str) -> Optional[Dict]:\n        return self.templates.get(template_id)\n\n    def list_templates(self) -> List[Dict]:\n        return list(self.templates.values())\n\n    def get_templates_as_mcp_tools(self) -> List[Dict]:\n        tools = []\n        for t in self.templates.values():\n            if 'mcpTool' in t and t['mcpTool']:\n                tool_info = t['mcpTool'].copy()\n                tool_info['id'] = t.get('id')\n                tools.append(tool_info)\n        return tools"
+        }
+      ]
+    }
+  },
+  "orchestrator": {
+    "fastAgent": {
+      "files": [
+        {
+          "path": "packages/agents/template-orchestrator/orchestrator.ts",
+          "content": "import axios from 'axios';\nimport { get } from 'jsonpath';\nimport { v4 as uuidv4 } from 'uuid';\nimport { logger } from './logger'; // Assuming a shared logger utility\n\n// --- Configuration ---\nconst MCPHUB_URL = process.env.MCPHUB_URL;\nconst PROMETHEUS_PUSHGATEWAY_URL = process.env.PROMETHEUS_PUSHGATEWAY_URL;\nconst MAX_CONCURRENT_TASKS = 4;\nconst RETRY_POLICY = {\n    retries: 3,\n    initialDelayMs: 1000,\n};\n\ninterface WorkflowStep {\n    step: number;\n    templateId: string;\n    description: string;\n    inputs: Record<string, any>;\n    tool?: any; // Populated by the discovery mechanism\n}\n\ninterface Workflow {\n    name: string;\n    steps: WorkflowStep[];\n}\n\ninterface StepResult {\n    status: 'success' | 'failure';\n    output?: any;\n    error?: string;\n}\n\nclass Orchestrator {\n    private activeTasks = 0;\n\n    /**\n     * Discovers and enriches workflow steps with tool information from MCPHub.\n     */\n    private async discoverTools(workflow: Workflow): Promise<Workflow> {\n        if (!MCPHUB_URL) throw new Error(\"MCPHUB_URL not configured.\");\n        \n        logger.info('Starting tool discovery from MCPHub', { workflowName: workflow.name });\n        \n        for (const step of workflow.steps) {\n            try {\n                // In a real implementation, you'd query by tag or name.\n                // Here we assume the templateId corresponds to a registered tool.\n                const response = await axios.get(`${MCPHUB_URL}/tools/template-adapter-${step.templateId}`);\n                step.tool = response.data;\n                logger.info(`Discovered tool for step ${step.step}`, { templateId: step.templateId, url: step.tool.url });\n            } catch (error) {\n                logger.error(`Failed to discover tool for template: ${step.templateId}`, { error });\n                throw new Error(`Tool discovery failed for template: ${step.templateId}`);\n            }\n        }\n        return workflow;\n    }\n\n    /**\n     * Maps inputs for a step, resolving JSONPath references from previous steps' outputs.\n     */\n    private mapPlaceholders(stepInputs: Record<string, any>, results: Record<number, StepResult>): Record<string, any> {\n        const resolvedInputs: Record<string, any> = {};\n        for (const key in stepInputs) {\n            const value = stepInputs[key];\n            if (typeof value === 'string' && value.startsWith('$.steps[')) {\n                try {\n                    // e.g., \"$.steps[0].output.body\"\n                    const stepIndex = parseInt(value.match(/\\[(\\d+)\\]/)?.[1] || '-1');\n                    const jsonPath = value.substring(value.indexOf('].') + 2);\n                    const sourceResult = results[stepIndex + 1];\n                    \n                    if (!sourceResult || sourceResult.status === 'failure') {\n                        throw new Error(`Source step ${stepIndex + 1} failed or does not exist.`);\n                    }\n                    \n                    resolvedInputs[key] = get(sourceResult, jsonPath)[0];\n                } catch (error) {\n                    logger.error('Failed to resolve placeholder', { placeholder: value, error });\n                    throw new Error(`Placeholder resolution failed for: ${value}`);\n                }\n            } else {\n                resolvedInputs[key] = value;\n            }\n        }\n        return resolvedInputs;\n    }\n    \n    /**\n     * Executes a single workflow step with retry logic.\n     */\n    private async executeStep(step: WorkflowStep, inputs: Record<string, any>, traceId: string): Promise<StepResult> {\n        if (!step.tool || !step.tool.url) {\n            return { status: 'failure', error: 'Tool not discovered for this step.' };\n        }\n\n        let attempts = 0;\n        while (attempts < RETRY_POLICY.retries) {\n            try {\n                logger.info(`Executing step ${step.step}`, { traceId, attempt: attempts + 1 });\n                const response = await axios.post(step.tool.url, inputs, {\n                    headers: {\n                        'X-API-KEY': process.env[`TOOL_API_KEY_${step.templateId}`] || process.env.DEFAULT_TOOL_API_KEY,\n                        'X-Request-ID': `${traceId}-${step.step}-${attempts}`,\n                    },\n                    timeout: (step.tool.timeout_seconds || 60) * 1000,\n                });\n\n                // Basic output validation placeholder\n                if (response.data.status !== 'ok') {\n                     throw new Error(`Step execution failed with status: ${response.data.status}`);\n                }\n\n                return { status: 'success', output: response.data.output };\n            } catch (error) {\n                attempts++;\n                logger.warn(`Step ${step.step} failed`, { traceId, attempt: attempts, error });\n                if (attempts >= RETRY_POLICY.retries) {\n                    return { status: 'failure', error: (error as Error).message };\n                }\n                await new Promise(res => setTimeout(res, RETRY_POLICY.initialDelayMs * Math.pow(2, attempts - 1)));\n            }\n        }\n        return { status: 'failure', error: 'Exceeded max retries.' };\n    }\n\n\n    /**\n     * Runs a complete workflow.\n     */\n    public async runWorkflow(workflow: Workflow): Promise<Record<number, StepResult>> {\n        const traceId = uuidv4();\n        const results: Record<number, StepResult> = {};\n        \n        logger.info('Starting workflow run', { workflowName: workflow.name, traceId });\n\n        try {\n            const enrichedWorkflow = await this.discoverTools(workflow);\n\n            for (const step of enrichedWorkflow.steps) {\n                while(this.activeTasks >= MAX_CONCURRENT_TASKS) {\n                    await new Promise(res => setTimeout(res, 100)); // Wait for a slot\n                }\n                \n                this.activeTasks++;\n                \n                try {\n                    const resolvedInputs = this.mapPlaceholders(step.inputs, results);\n                    const result = await this.executeStep(step, resolvedInputs, traceId);\n                    results[step.step] = result;\n                    if (result.status === 'failure') {\n                        logger.error(`Workflow halted due to step ${step.step} failure.`, { traceId });\n                        // In a real scenario, you might have different error handling strategies\n                        // (e.g., continue on error, run compensation steps).\n                        break; \n                    }\n                } finally {\n                    this.activeTasks--;\n                }\n            }\n        } catch (error) {\n            logger.error('Workflow failed during setup', { traceId, error });\n        }\n\n        logger.info('Workflow run finished', { workflowName: workflow.name, traceId });\n        await this.pushMetrics(traceId, workflow.name, results);\n        return results;\n    }\n    \n    /**\n     * Pushes metrics to a Prometheus Pushgateway.\n     */\n    private async pushMetrics(traceId: string, workflowName: string, results: Record<number, StepResult>): Promise<void> {\n        if (!PROMETHEUS_PUSHGATEWAY_URL) return;\n\n        const successCount = Object.values(results).filter(r => r.status === 'success').length;\n        const failureCount = Object.values(results).length - successCount;\n\n        const metrics = `\n# TYPE workflow_runs_total counter\nworkflow_runs_total{workflow_name=\"${workflowName}\"} 1\n# TYPE workflow_steps_total counter\nworkflow_steps_total{workflow_name=\"${workflowName}\",status=\"success\"} ${successCount}\nworkflow_steps_total{workflow_name=\"${workflowName}\",status=\"failure\"} ${failureCount}\n        `;\n        \n        try {\n            await axios.post(\n                `${PROMETHEUS_PUSHGATEWAY_URL}/metrics/job/orchestrator/instance/${traceId}`,\n                metrics,\n                { headers: { 'Content-Type': 'text/plain' } }\n            );\n            logger.info('Successfully pushed metrics to Pushgateway', { traceId });\n        } catch (error) {\n            logger.error('Failed to push metrics to Pushgateway', { traceId, error });\n        }\n    }\n}\n\n// Example of how to run it\nasync function main() {\n    // This would typically be loaded from a file or a database\n    const exampleWorkflow: Workflow = JSON.parse(await fs.promises.readFile('./workflows/example_workflow.json', 'utf-8'));\n\n    const orchestrator = new Orchestrator();\n    const finalResults = await orchestrator.runWorkflow(exampleWorkflow);\n\n    console.log('Workflow results:', JSON.stringify(finalResults, null, 2));\n}\n\nif (require.main === module) {\n    main();\n}"
+        },
+        {
+          "path": "packages/agents/template-orchestrator/workflows/example_workflow.json",
+          "content": "{\n  \"name\": \"Content-Creation-Pipeline\",\n  \"description\": \"A complete workflow to generate a blog post and a promotional video script from a single theme.\",\n  \"steps\": [\n    {\n      \"step\": 1,\n      \"templateId\": \"topic-idea-generator\",\n      \"description\": \"Generate a list of potential blog post topics.\",\n      \"inputs\": {\n        \"broadTheme\": \"The impact of AI on creative industries\",\n        \"targetAudience\": \"Artists, writers, and designers\"\n      }\n    },\n    {\n      \"step\": 2,\n      \"templateId\": \"blog-post-outline-generator\",\n      \"description\": \"Create a structured outline for the first topic idea.\",\n      \"inputs\": {\n        \"topic\": \"$.steps[0].output.topics[0].title\",\n        \"targetAudience\": \"Artists, writers, and designers\"\n      }\n    },\n    {\n      \"step\": 3,\n      \"templateId\": \"blog-post-writer\",\n      \"description\": \"Write the full blog post using the generated outline.\",\n      \"inputs\": {\n        \"outlineJson\": \"$.steps[1].output\",\n        \"toneOfVoice\": \"Insightful and slightly provocative\"\n      }\n    },\n    {\n      \"step\": 4,\n      \"templateId\": \"short-video-script-writer\",\n      \"description\": \"Repurpose the blog post into a short video script for social media.\",\n      \"inputs\": {\n        \"articleContent\": \"$.steps[2].output.body\",\n        \"videoDurationSeconds\": 60\n      }\n    },\n    {\n      \"step\": 5,\n      \"templateId\": \"thumbnail-text-generator\",\n      \"description\": \"Generate catchy text for the video thumbnail.\",\n      \"inputs\": {\n        \"videoTitle\": \"$.steps[2].output.title\",\n        \"videoTopic\": \"A summary of how AI is impacting creative industries.\"\n      }\n    }\n  ]\n}"
+        },
+        {
+          "path": "packages/agents/template-orchestrator/logger.ts",
+          "content": "import winston from 'winston';\n\nconst { combine, timestamp, json, errors } = winston.format;\n\nexport const logger = winston.createLogger({\n    level: process.env.LOG_LEVEL || 'info',\n    format: combine(\n        errors({ stack: true }),\n        timestamp(),\n        json()\n    ),\n    transports: [\n        new winston.transports.Console(),\n    ],\n    exitOnError: false,\n});\n\nif (process.env.NODE_ENV !== 'production') {\n    logger.add(new winston.transports.Console({\n        format: winston.format.combine(\n            winston.format.colorize(),\n            winston.format.simple()\n        ),\n    }));\n}"
+        }
+      ]
+    }
+  },
+  "infra": {
+    "docker_compose": "version: '3.8'\n\nservices:\n  mcphub:\n    image: ghcr.io/samanhappy/mcphub:latest # Placeholder image for MCPHub\n    container_name: mcphub\n    ports:\n      - \"8080:8080\"\n    environment:\n      - MCPHUB_API_KEY=${MCPHUB_API_KEY:-hub_secret_key}\n    networks:\n      - mcp_network\n\n  template-mcp-ts:\n    container_name: template-mcp-adapter-ts\n    build:\n      context: ./packages/mcp-adapters/template-mcp\n    ports:\n      - \"3000:3000\"\n    environment:\n      - PORT=3000\n      - ADAPTER_API_KEY=${ADAPTER_API_KEY:-adapter_secret_key}\n      - MCPHUB_URL=http://mcphub:8080/api/v1\n      - MCPHUB_API_KEY=${MCPHUB_API_KEY:-hub_secret_key}\n      - NODE_ENV=development\n    depends_on:\n      - mcphub\n      - mock-llm\n    networks:\n      - mcp_network\n\n  template-mcp-py:\n    container_name: template-mcp-adapter-py\n    build:\n      context: ./packages/mcp-adapters/template-mcp-py\n    ports:\n      - \"3001:3001\"\n    environment:\n      - PORT=3001\n      - ADAPTER_API_KEY=${ADAPTER_API_KEY:-adapter_secret_key}\n      - MCPHUB_URL=http://mcphub:8080/api/v1\n      - MCPHUB_API_KEY=${MCPHUB_API_KEY:-hub_secret_key}\n    depends_on:\n      - mcphub\n      - mock-llm\n    networks:\n      - mcp_network\n\n  orchestrator:\n    container_name: template-orchestrator\n    build:\n      context: ./packages/agents/template-orchestrator\n    environment:\n      - MCPHUB_URL=http://mcphub:8080/api/v1\n      - DEFAULT_TOOL_API_KEY=${ADAPTER_API_KEY:-adapter_secret_key}\n      - PROMETHEUS_PUSHGATEWAY_URL=http://pushgateway:9091\n    depends_on:\n      - template-mcp-ts\n      - template-mcp-py\n    networks:\n      - mcp_network\n  \n  mock-llm:\n    container_name: mock-llm\n    build:\n      context: ./mock-llm \n    ports:\n      - \"8888:8888\"\n    networks:\n      - mcp_network\n\n  prometheus:\n    image: prom/prometheus:v2.37.0\n    container_name: prometheus\n    ports:\n      - \"9090:9090\"\n    volumes:\n      - ./prometheus.yml:/etc/prometheus/prometheus.yml\n    networks:\n      - mcp_network\n\n  pushgateway:\n    image: prom/pushgateway:v1.4.2\n    container_name: pushgateway\n    ports:\n      - \"9091:9091\"\n    networks:\n      - mcp_network\n\nnetworks:\n  mcp_network:\n    driver: bridge",
+    "github_actions": "name: Template System CI\n\non:\n  push:\n    branches:\n      - main\n      - 'feature/**'\n  pull_request:\n    branches:\n      - main\n\njobs:\n  validate-and-test:\n    runs-on: ubuntu-latest\n\n    steps:\n      - name: Checkout repository\n        uses: actions/checkout@v3\n\n      - name: Setup Node.js\n        uses: actions/setup-node@v3\n        with:\n          node-version: '18'\n          cache: 'pnpm'\n\n      - name: Setup Python\n        uses: actions/setup-python@v4\n        with:\n          python-version: '3.9'\n\n      - name: Install pnpm\n        run: npm install -g pnpm\n\n      - name: Install dependencies\n        run: pnpm install\n\n      - name: Run Lint\n        run: pnpm lint # Assuming a top-level lint script\n\n      - name: Run Unit Tests\n        run: pnpm test # Assuming a top-level test script that runs all tests\n\n      - name: Run Template Validation Script\n        run: node scripts/validate_templates.js # Placeholder for the script path\n        env:\n          NODE_PATH: ${{ github.workspace }}/packages/core/src/services/template/default-templates\n\n  integration-test:\n    runs-on: ubuntu-latest\n    needs: validate-and-test\n\n    services:\n      docker:\n        image: docker:dind\n        options: --privileged\n\n    steps:\n      - name: Checkout repository\n        uses: actions/checkout@v3\n\n      - name: Setup Docker Compose\n        run: |\n          sudo curl -L \"https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose\n          sudo chmod +x /usr/local/bin/docker-compose\n\n      - name: Start Docker Compose Stack\n        run: docker-compose -f docker-compose.yml up -d\n        env:\n          ADAPTER_API_KEY: test_key\n          MCPHUB_API_KEY: test_hub_key\n\n      - name: Wait for services to be healthy\n        run: |\n          echo \"Waiting for services to start...\"\n          sleep 30 # Simple wait; a more robust solution would use a script to check health endpoints\n      \n      - name: Run Integration Tests\n        run: |\n          # Example integration test: try to fetch templates from the running adapter\n          curl -f -H \"X-API-KEY: test_key\" http://localhost:3000/templates\n          # Example integration test: try to generate from a template\n          curl -f -X POST http://localhost:3000/generate/blog-post-outline-generator \\\n            -H \"Content-Type: application/json\" \\\n            -H \"X-API-KEY: test_key\" \\\n            -d '{\"topic\": \"Test\", \"targetAudience\": \"CI\"}'\n\n      - name: Stop Docker Compose Stack\n        if: always()\n        run: docker-compose down",
+    "mcphub_manifest_examples": "# MCPHub Manifest for registering a bundle of content creation tools.\n# This allows for batch registration of related tools.\n\napiVersion: hub.mcphub.dev/v1alpha1\nkind: ToolManifest\nmetadata:\n  name: content-creation-bundle\n  namespace: default\n  labels:\n    bundle: content\n    owner: marketing-team\nspec:\n  provider: template-mcp-adapter\n  description: \"A collection of tools for generating and optimizing content.\"\n  tools:\n    - name: generateTopicIdeas\n      id: template-adapter-topic-idea-generator\n      description: \"Generates blog post topic ideas.\"\n      url: \"http://template-mcp-adapter-ts:3000/generate/topic-idea-generator\"\n      tags: [\"content\", \"ideation\"]\n      healthCheck:\n        path: \"/internal/health\"\n        timeout: 5\n\n    - name: generateBlogPostOutline\n      id: template-adapter-blog-post-outline-generator\n      description: \"Generates a structured outline for a blog post.\"\n      url: \"http://template-mcp-adapter-ts:3000/generate/blog-post-outline-generator\"\n      tags: [\"content\", \"blogging\", \"seo\"]\n      healthCheck:\n        path: \"/internal/health\"\n        timeout: 5\n\n    - name: writeBlogPost\n      id: template-adapter-blog-post-writer\n      description: \"Writes a full blog post from a structured outline.\"\n      url: \"http://template-mcp-adapter-ts:3000/generate/blog-post-writer\"\n      tags: [\"content\", \"writing\"]\n      healthCheck:\n        path: \"/internal/health\"\n        timeout: 5\n\n    - name: optimizeMetaDescription\n      id: template-adapter-meta-description-optimizer\n      description: \"Creates an SEO-friendly meta description.\"\n      url: \"http://template-mcp-adapter-ts:3000/generate/meta-description-optimizer\"\n      tags: [\"content\", \"seo\", \"optimization\"]\n      healthCheck:\n        path: \"/internal/health\"\n        timeout: 5"
+  },
+  "scripts": {
+    "validate_templates": "const fs = require('fs/promises');\nconst path = require('path');\nconst Ajv = require('ajv');\nconst addFormats = require('ajv-formats');\n\nconst ajv = new Ajv({ allErrors: true });\naddFormats(ajv);\n\nconst templatesDir = path.join(__dirname, '../packages/core/src/services/template/default-templates');\n\nlet totalTemplates = 0;\nlet failedTemplates = 0;\nconst errors = [];\n\nasync function validateTemplate(filePath) {\n    totalTemplates++;\n    const templateContent = await fs.readFile(filePath, 'utf-8');\n    const template = JSON.parse(templateContent);\n    const templateId = template.id || path.basename(filePath);\n    let hasFailed = false;\n\n    const addError = (message) => {\n        if (!hasFailed) {\n            errors.push(`\\n--- Validation Failed for: ${templateId} ---`);\n            hasFailed = true;\n            failedTemplates++;\n        }\n        errors.push(`  - ${message}`);\n    };\n\n    // 1. Validate exampleOutput against outputSchema\n    try {\n        const validate = ajv.compile(template.outputSchema);\n        const valid = validate(template.exampleOutput);\n        if (!valid) {\n            addError(`exampleOutput does not match outputSchema. Errors: ${ajv.errorsText(validate.errors)}`);\n        }\n    } catch (e) {\n        addError(`Compiling outputSchema failed: ${e.message}`);\n    }\n\n    // 2. Ensure requiredOutputKeys exist in exampleOutput\n    if (template.requiredOutputKeys) {\n        for (const key of template.requiredOutputKeys) {\n            // This is a simplified check. A full implementation would use JSONPath.\n            if (!template.exampleOutput.hasOwnProperty(key)) {\n                addError(`Required output key '${key}' is missing from exampleOutput.`);\n            }\n        }\n    }\n\n    // 3. Ensure placeholder consistency\n    if (template.inputs && template.exampleInput) {\n        const placeholders = template.inputs.map(p => p.replace(/[{}]/g, ''));\n        for (const placeholder of placeholders) {\n            if (!template.exampleInput.hasOwnProperty(placeholder)) {\n                addError(`Input placeholder '{${placeholder}}' is missing from exampleInput.`);\n            }\n        }\n    }\n    \n    // 4. Check for MCP Tool manifest\n    if (!template.mcpTool) {\n        addError('Template is missing the mcpTool manifest object.');\n    } else {\n        if (!template.mcpTool.name || !template.mcpTool.httpRoute) {\n             addError('mcpTool manifest is missing required fields like name or httpRoute.');\n        }\n    }\n}\n\nasync function main() {\n    console.log('Starting template validation...');\n    try {\n        const categories = await fs.readdir(templatesDir);\n        for (const category of categories) {\n            const categoryPath = path.join(templatesDir, category);\n            const stats = await fs.stat(categoryPath);\n\n            if (stats.isDirectory()) {\n                const files = await fs.readdir(categoryPath);\n                for (const file of files) {\n                    if (file.endsWith('.json')) {\n                        await validateTemplate(path.join(categoryPath, file));\n                    }\n                }\n            }\n        }\n\n        if (failedTemplates > 0) {\n            console.error('\\nValidation finished with errors.');\n            console.error(errors.join('\\n'));\n            console.error(`\\nSummary: ${failedTemplates} of ${totalTemplates} templates failed validation.`);\n            process.exit(1);\n        } else {\n            console.log(`\\nValidation successful! All ${totalTemplates} templates passed.`);\n            process.exit(0);\n        }\n    } catch (e) {\n        console.error('A critical error occurred during the validation process:', e);\n        process.exit(1);\n    }\n}\n\nmain();",
+    "register_with_mcphub": "const fs = require('fs/promises');\nconst path = require('path');\nconst axios = require('axios');\n\nconst templatesDir = path.join(__dirname, '../packages/core/src/services/template/default-templates');\nconst MCPHUB_URL = process.env.MCPHUB_URL;\nconst MCPHUB_API_KEY = process.env.MCPHUB_API_KEY;\nconst ADAPTER_BASE_URL = process.env.ADAPTER_BASE_URL || 'http://template-mcp-adapter-ts:3000';\n\nconst args = process.argv.slice(2);\nconst isDryRun = args.includes('--dry-run');\nconst isSync = args.includes('--sync');\n\nif (!MCPHUB_URL || !MCPHUB_API_KEY) {\n    console.error('Error: MCPHUB_URL and MCPHUB_API_KEY environment variables must be set.');\n    process.exit(1);\n}\n\nasync function getAllLocalTemplates() {\n    const templates = [];\n    const categories = await fs.readdir(templatesDir);\n    for (const category of categories) {\n        const categoryPath = path.join(templatesDir, category);\n        const stats = await fs.stat(categoryPath);\n\n        if (stats.isDirectory()) {\n            const files = await fs.readdir(categoryPath);\n            for (const file of files) {\n                if (file.endsWith('.json')) {\n                    const templateContent = await fs.readFile(path.join(categoryPath, file), 'utf-8');\n                    templates.push(JSON.parse(templateContent));\n                }\n            }\n        }\n    }\n    return templates;\n}\n\nasync function registerTool(template) {\n    if (!template.mcpTool) {\n        console.warn(`[SKIP] Template ${template.id} has no mcpTool manifest.`);\n        return;\n    }\n    \n    const payload = {\n        id: `template-adapter-${template.id}`,\n        name: template.mcpTool.name,\n        description: template.mcpTool.description,\n        url: `${ADAPTER_BASE_URL}${template.mcpTool.httpRoute}`,\n        tags: template.tags || [],\n        metadata: {\n            adapter: 'template-mcp-adapter',\n            templateId: template.id,\n            version: template.version,\n        }\n    };\n    \n    if (isDryRun) {\n        console.log(`[DRY RUN] Would register tool: ${payload.name} (ID: ${payload.id})`);\n        return;\n    }\n\n    try {\n        await axios.post(`${MCPHUB_URL}/register`, payload, {\n            headers: { 'X-API-KEY': MCPHUB_API_KEY }\n        });\n        console.log(`[SUCCESS] Registered tool: ${payload.name}`);\n    } catch (error) {\n        console.error(`[FAILURE] Failed to register tool ${payload.name}: ${error.message}`);\n    }\n}\n\nasync function getRegisteredTools() {\n    try {\n        const response = await axios.get(`${MCPHUB_URL}/tools`, {\n             headers: { 'X-API-KEY': MCPHUB_API_KEY }\n        });\n        // Filter for tools managed by this adapter\n        return response.data.filter(tool => tool.metadata && tool.metadata.adapter === 'template-mcp-adapter');\n    } catch (error) {\n        console.error(`[FAILURE] Could not fetch registered tools from MCPHub: ${error.message}`);\n        return [];\n    }\n}\n\nasync function unregisterTool(toolId) {\n     if (isDryRun) {\n        console.log(`[DRY RUN] Would unregister tool ID: ${toolId}`);\n        return;\n    }\n    try {\n        await axios.delete(`${MCPHUB_URL}/tools/${toolId}`, {\n            headers: { 'X-API-KEY': MCPHUB_API_KEY }\n        });\n        console.log(`[SUCCESS] Unregistered stale tool: ${toolId}`);\n    } catch(error) {\n        console.error(`[FAILURE] Failed to unregister tool ${toolId}: ${error.message}`);\n    }\n}\n\nasync function main() {\n    console.log(`Starting registration process... (Dry Run: ${isDryRun}, Sync: ${isSync})`);\n    const localTemplates = await getAllLocalTemplates();\n    \n    // Register all local templates\n    for (const template of localTemplates) {\n        await registerTool(template);\n    }\n    \n    // Handle sync logic to remove stale entries\n    if (isSync) {\n        console.log('\\nStarting sync process to remove stale registrations...');\n        const registeredTools = await getRegisteredTools();\n        const localToolIds = new Set(localTemplates.map(t => `template-adapter-${t.id}`));\n        \n        for (const registeredTool of registeredTools) {\n            if (!localToolIds.has(registeredTool.id)) {\n                await unregisterTool(registeredTool.id);\n            }\n        }\n    }\n    \n    console.log('\\nRegistration process complete.');\n}\n\nmain();"
+  },
+  "docs": {
+    "README_integration": "# Integration Guide: Templates as MCP Tools\n\nThis guide provides step-by-step instructions for setting up and running the entire template integration stack, including the adapters, MCPHub, and the Fast Agent orchestrator using Docker Compose.\n\n## Prerequisites\n\n-   Docker and Docker Compose installed on your local machine.\n-   A `.env` file in the root of the repository with the following content (you can copy `env.local.example`):\n    ```env\n    # A shared secret for the adapters to authenticate with MCPHub\n    MCPHUB_API_KEY=hub_super_secret_key\n\n    # A shared secret for clients (like the orchestrator) to authenticate with the adapters\n    ADAPTER_API_KEY=adapter_super_secret_key\n    ```\n\n## 1. Running the Full Stack with Docker Compose\n\nThe `docker-compose.yml` file at the root of the repository is configured to build and run all the necessary services.\n\nFrom the root of the project, run:\n\n```bash\ndocker-compose up --build -d\n```\n\nThis command will:\n1.  Build the Docker images for the TypeScript adapter, Python adapter, and the orchestrator.\n2.  Pull images for MCPHub, Prometheus, and Pushgateway.\n3.  Start all services and connect them to a shared network.\n\nYou can check the status of the containers with `docker-compose ps`. To view logs for a specific service, use `docker-compose logs -f <service_name>`, e.g., `docker-compose logs -f template-mcp-ts`.\n\n## 2. Registering Templates with MCPHub\n\nOnce the services are running, the TypeScript and Python adapters will automatically attempt to register their loaded templates with the MCPHub instance.\n\nYou can verify this by:\n1.  **Checking Adapter Logs**:\n    ```bash\n    docker-compose logs -f template-mcp-ts\n    ```\n    You should see logs indicating successful registration for each tool.\n\n2.  **Querying MCPHub API** (Optional):\n    You can directly query the MCPHub's `/tools` endpoint to see all registered tools.\n    ```bash\n    curl -H \"X-API-KEY: hub_super_secret_key\" http://localhost:8080/api/v1/tools\n    ```\n\n### Manual Registration using the Script\n\nA script is provided to manually register templates. This is useful for CI/CD pipelines or for forcing a sync.\n\nTo run the script:\n\n```bash\n# Set environment variables\nexport MCPHUB_URL=http://localhost:8080/api/v1\nexport MCPHUB_API_KEY=hub_super_secret_key\n\n# Execute the registration script\nnode scripts/register_with_mcphub.js\n\n# To perform a dry run (shows what would be registered):\nnode scripts/register_with_mcphub.js --dry-run\n\n# To sync and remove stale registrations from the hub:\nnode scripts/register_with_mcphub.js --sync\n```\n\n## 3. Running the Orchestrator\n\nThe orchestrator service is also started by Docker Compose, but it's set up to run a specific workflow file. By default, it will execute the `example_workflow.json`.\n\nTo see the output of the orchestrator, view its logs:\n\n```bash\ndocker-compose logs -f orchestrator\n```\n\nYou should see log entries detailing the workflow execution, including:\n-   Tool discovery from MCPHub.\n-   Step-by-step execution.\n-   Placeholder mapping between steps.\n-   Final results of the workflow.\n\n## 4. Running Tests and CI Checks\n\nThe repository is configured with a GitHub Actions workflow that automates testing and validation.\n\n### Local Validation\n\nBefore committing new templates, you should run the validation script locally:\n\n```bash\nnode scripts/validate_templates.js\n```\n\nThis script checks for schema correctness, placeholder consistency, and other rules to ensure template quality.\n\n### CI Workflow\n\nThe CI workflow is defined in `.github/workflows/ci-templates.yml`. It automatically runs on every push and pull request to the `main` branch and performs the following:\n1.  **Static Validation**: Lints the code and runs the `validate_templates.js` script.\n2.  **Unit Tests**: Runs all unit tests for the project.\n3.  **Integration Tests**: Starts the full Docker Compose stack and runs a series of `curl` commands to ensure the adapters are working correctly and can be reached.\n\nThis ensures that any changes to templates or the adapter code are verified before being merged.",
+    "operational_runbook": "# Operational Runbook: Template Integration System\n\nThis document provides operational guidance for maintaining, monitoring, and troubleshooting the template integration system.\n\n## Table of Contents\n1.  [System Architecture Overview](#1-system-architecture-overview)\n2.  [Monitoring and Alerts](#2-monitoring-and-alerts)\n3.  [Incident Response Playbooks](#3-incident-response-playbooks)\n    -   [Playbook 1: Adapter is Down/Unresponsive](#playbook-1-adapter-is-downunresponsive)\n    -   [Playbook 2: MCPHub is Unreachable](#playbook-2-mcphub-is-unreachable)\n    -   [Playbook 3: Template Validation Failed in CI](#playbook-3-template-validation-failed-in-ci)\n    -   [Playbook 4: High LLM Costs or Slow Performance](#playbook-4-high-llm-costs-or-slow-performance)\n4.  [Escalation Path](#4-escalation-path)\n\n---\n\n## 1. System Architecture Overview\n\nThe system consists of four main components running in Docker containers:\n-   **Template Adapters (TS/Py)**: Expose templates as API endpoints.\n-   **MCPHub**: A registry for discovering the tools (templates) exposed by the adapters.\n-   **Orchestrator**: A Fast Agent that consumes tools from MCPHub to execute workflows.\n-   **Monitoring Stack**: Prometheus for metrics collection and Pushgateway for batch job metrics.\n\n## 2. Monitoring and Alerts\n\n-   **Prometheus**: Scrapes metrics from adapters at `http://<adapter-host>:<port>/metrics`. Key metrics include:\n    -   `http_requests_duration_seconds`: Latency of API requests.\n    -   `up`: Health status of the adapter (1 for up, 0 for down).\n-   **Alertmanager** (if configured): Should be set up to fire alerts based on Prometheus data.\n    -   **Alert**: `AdapterDown` - fires if `up{job=\"template-mcp-ts\"} == 0` for more than 1 minute.\n    -   **Alert**: `HighRequestLatency` - fires if `histogram_quantile(0.95, sum(rate(http_requests_duration_seconds_bucket[5m])) by (le)) > 3`.\n-   **Logs**: All services output structured JSON logs. Check container logs for errors: `docker-compose logs -f <service_name>`.\n\n---\n\n## 3. Incident Response Playbooks\n\n### Playbook 1: Adapter is Down/Unresponsive\n\n-   **Detection**:\n    -   Prometheus `AdapterDown` alert fires.\n    -   Orchestrator logs show connection errors to an adapter URL.\n    -   Health check endpoint `GET /internal/health` fails or times out.\n\n-   **Diagnosis**:\n    1.  Check the container status: `docker-compose ps template-mcp-ts`. Is it running?\n    2.  Examine the container logs for errors at startup or runtime: `docker-compose logs -f template-mcp-ts`. Look for crash loops, database connection errors, or unhandled exceptions.\n    3.  Check for resource exhaustion on the host machine (`docker stats`). Is the container hitting CPU or memory limits?\n\n-   **Mitigation/Resolution**:\n    1.  **Restart the container**: `docker-compose restart template-mcp-ts`. This is often the quickest fix.\n    2.  **If startup fails**: The issue is likely a configuration error (e.g., bad `.env` file) or a bug in the code. Check the logs for specific error messages.\n    3.  **If it crashes after running**: It could be a memory leak or a specific request causing a crash. Analyze the logs leading up to the crash.\n\n### Playbook 2: MCPHub is Unreachable\n\n-   **Detection**:\n    -   Adapter logs show \"MCPHub URL or API Key not set\" or \"Failed to register tool\".\n    -   Orchestrator logs show \"Tool discovery failed\".\n\n-   **Diagnosis**:\n    1.  Check the MCPHub container status: `docker-compose ps mcphub`.\n    2.  Check the MCPHub container logs: `docker-compose logs -f mcphub`.\n    3.  Verify network connectivity between the adapter/orchestrator and MCPHub. From within the adapter container, try to reach the hub:\n        ```bash\n        docker-compose exec template-mcp-ts sh -c \"apk add curl && curl -I http://mcphub:8080\"\n        ```\n    4.  Check environment variables (`MCPHUB_URL`, `MCPHUB_API_KEY`) in the adapter and orchestrator services in `docker-compose.yml`.\n\n-   **Mitigation/Resolution**:\n    1.  Restart the MCPHub container: `docker-compose restart mcphub`.\n    2.  Correct any misconfigured environment variables and restart the dependent services.\n\n### Playbook 3: Template Validation Failed in CI\n\n-   **Detection**:\n    -   The `validate-and-test` job in the GitHub Actions CI pipeline fails.\n    -   The logs for the `Run Template Validation Script` step show specific validation errors.\n\n-   **Diagnosis**:\n    1.  Read the CI logs carefully. The validation script will print exactly which template failed and why (e.g., \"exampleOutput does not match outputSchema\", \"Required output key 'h1' is missing\").\n    2.  Run the validation script locally to reproduce the error: `node scripts/validate_templates.js`.\n\n-   **Mitigation/Resolution**:\n    1.  The developer who submitted the failing template is responsible for fixing it.\n    2.  The fix usually involves correcting the `exampleOutput` to match the `outputSchema` or vice-versa.\n    3.  Ensure all required keys are present and data types are correct.\n    4.  Push the fix. The CI pipeline will run again to verify.\n\n### Playbook 4: High LLM Costs or Slow Performance\n\n-   **Detection**:\n    -   High request latency alerts from Prometheus.\n    -   Billing alerts from the LLM provider.\n    -   User reports of slow responses from the `generate` endpoints.\n\n-   **Diagnosis**:\n    1.  Identify the slow templates by analyzing the `http_requests_duration_seconds` metric in Prometheus, filtering by the `route` label.\n    2.  Check the `meta.recommended_runtime` block in the slow templates. Is `max_tokens` set too high? Is an unnecessarily powerful model being used?\n    3.  Review the template's prompt. Is it overly complex or ambiguous, causing the LLM to take a long time to generate a response?\n\n-   **Mitigation/Resolution**:\n    1.  **Optimize the Prompt**: Refine the template's internal prompt to be more specific and efficient.\n    2.  **Adjust `max_tokens`**: Lower the `max_tokens` value in the template's metadata to a more reasonable number for the expected output.\n    3.  **Use a Faster/Cheaper Model**: If the task doesn't require a top-tier model, change the `model` in `recommended_runtime` to a faster, more cost-effective alternative (e.g., from `gpt-4-turbo` to `gpt-3.5-turbo`).\n    4.  **Implement Caching**: For frequently requested, deterministic templates, consider adding a caching layer (e.g., Redis) in the adapter to store and serve common results.\n\n## 4. Escalation Path\n\n1.  **On-Call Developer**: The first responder for any alerts. Responsible for following the playbooks to diagnose and mitigate the issue.\n2.  **System Lead**: If the on-call developer cannot resolve the issue within 30 minutes, or if the issue is a systemic problem (e.g., a bug in the adapter's core logic), escalate to the System Lead.\n3.  **External Provider**: If the issue is determined to be with an external service (e.g., LLM provider outage), monitor their status page and communicate the issue to internal stakeholders."
+  }
+}
