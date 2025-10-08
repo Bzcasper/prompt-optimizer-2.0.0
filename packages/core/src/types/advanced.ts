@@ -3,13 +3,11 @@
  * 整合变量管理、工具调用、上下文管理等高级功能的类型支持
  */
 
+import { z } from 'zod';
 import type {
   ConversationMessage,
   OptimizationRequest,
   CustomConversationRequest,
-  ToolDefinition,
-  FunctionDefinition,
-  ToolCall,
   OptimizationMode
 } from '../services/prompt/types';
 
@@ -20,14 +18,38 @@ import type {
   MessageRole
 } from '../services/llm/types';
 
+// Zod Schemas for strict type validation
+export const functionDefinitionSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  parameters: z.record(z.any()).optional(),
+});
+
+export const toolDefinitionSchema = z.object({
+  type: z.literal('function'),
+  function: functionDefinitionSchema,
+});
+
+export const toolCallSchema = z.object({
+  id: z.string(),
+  type: z.literal('function'),
+  function: z.object({
+    name: z.string(),
+    arguments: z.string(), // stringified JSON
+  }),
+});
+
+// Inferred types from Zod schemas
+export type FunctionDefinition = z.infer<typeof functionDefinitionSchema>;
+export type ToolDefinition = z.infer<typeof toolDefinitionSchema>;
+export type ToolCall = z.infer<typeof toolCallSchema>;
+
+
 // 重导出核心类型，避免重复定义
 export type {
   ConversationMessage,
   OptimizationRequest,
   CustomConversationRequest,
-  ToolDefinition,
-  FunctionDefinition,
-  ToolCall,
   OptimizationMode,
   LLMResponse,
   StreamHandlers,
