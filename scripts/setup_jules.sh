@@ -49,10 +49,10 @@ if grep -q "\"build\"" package.json; then
 fi
 
 # 6. Run linters / static analysis
-echo "Running lint / static analysis checks"
-if command -v eslint >/dev/null 2>&1 && [ -f package.json ]; then
-  pnpm lint || true
-fi
+# echo "Running lint / static analysis checks"
+# if command -v eslint >/dev/null 2>&1 && [ -f package.json ]; then
+#   pnpm lint || true
+# fi
 
 # 7. Run tests (if any)
 echo "Running test suite"
