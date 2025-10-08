@@ -122,6 +122,30 @@ export interface IPromptService {
     request: CustomConversationRequest,
     callbacks: StreamHandlers
   ): Promise<void>;
+
+  /**
+   * 批评一个提示词
+   * @param promptToCritique - 需要被批评的提示词
+   * @param modelKey - 用于批评的LLM模型
+   * @returns 批评结果
+   */
+  critiquePrompt(promptToCritique: string, modelKey: string): Promise<CritiqueResult>;
+}
+
+/**
+ * 批评结果的结构
+ */
+export interface CritiqueResult {
+  /**
+   * 批评是否通过
+   * true: 无需修改
+   * false: 需要修改
+   */
+  is_passed: boolean;
+  /**
+   * 批评的理由或建议
+   */
+  critique: string;
 }
 
 export type { StreamHandlers }; 

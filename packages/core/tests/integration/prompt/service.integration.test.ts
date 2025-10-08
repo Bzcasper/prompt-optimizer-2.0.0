@@ -69,6 +69,7 @@ describe('PromptService Integration Tests', () => {
 
   describe('optimizePrompt with different template formats', () => {
     it.runIf(hasGeminiKey)('should work with string-based templates', async () => {
+      vi.spyOn(promptService, 'critiquePrompt').mockResolvedValue({ is_passed: true, critique: 'Mocked critique' });
       const request = {
         optimizationMode: 'system' as const,
         targetPrompt: 'Write a simple greeting',
@@ -97,6 +98,7 @@ describe('PromptService Integration Tests', () => {
     }, 30000);
 
     it.runIf(hasGeminiKey)('should work with message-based templates', async () => {
+      vi.spyOn(promptService, 'critiquePrompt').mockResolvedValue({ is_passed: true, critique: 'Mocked critique' });
       // 添加一个消息模板
       const messageTemplate: Template = {
         id: 'test-message-template',
@@ -242,6 +244,7 @@ describe('PromptService Integration Tests', () => {
 
   describe('streaming methods', () => {
     it.runIf(hasGeminiKey)('should handle optimizePromptStream', async () => {
+      vi.spyOn(promptService, 'critiquePrompt').mockResolvedValue({ is_passed: true, critique: 'Mocked critique' });
       const tokens: string[] = [];
       let completed = false;
 
