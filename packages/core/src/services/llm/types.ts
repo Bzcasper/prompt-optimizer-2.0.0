@@ -1,27 +1,5 @@
 import { ModelConfig } from '../model/types';
-
-/**
- * 工具调用相关类型
- */
-export interface ToolCall {
-  id: string;
-  type: 'function';
-  function: {
-    name: string;
-    arguments: string;
-  };
-}
-
-export interface FunctionDefinition {
-  name: string;
-  description?: string;
-  parameters?: object;
-}
-
-export interface ToolDefinition {
-  type: 'function';
-  function: FunctionDefinition;
-}
+import { ToolCall, ToolDefinition } from '../../types/advanced';
 /**
  * 消息角色类型
  */

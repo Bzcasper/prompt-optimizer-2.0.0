@@ -29,7 +29,7 @@ describe('DataManager Import/Export Integration', () => {
     modelManager = new ModelManager(storageProvider);
     await modelManager.ensureInitialized();
 
-    const languageService = new TemplateLanguageService(storageProvider, preferenceService);
+    const languageService = new TemplateLanguageService(preferenceService);
     await languageService.initialize();
     templateManager = new TemplateManager(storageProvider, languageService);
 

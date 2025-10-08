@@ -30,14 +30,14 @@
     "vitest": "^3.0.2"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.21.0",
     "@google/genai": "^1.0.0",
+    "@google/generative-ai": "^0.21.0",
     "@types/mustache": "^4.2.5",
     "dexie": "^4.0.11",
     "diff": "^8.0.2",
     "mustache": "^4.2.0",
     "openai": "^4.83.0",
     "uuid": "^11.0.5",
-    "zod": "^3.22.4"
+    "zod": "^3.25.67"
   }
 }

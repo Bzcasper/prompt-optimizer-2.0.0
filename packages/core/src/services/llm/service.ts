@@ -1,4 +1,5 @@
 import { ILLMService, Message, StreamHandlers, LLMResponse, ModelInfo, ModelOption, ToolDefinition, ToolCall } from './types';
+import { toolCallSchema } from '../../types/advanced';
 import { ModelConfig } from '../model/types';
 import { ModelManager } from '../model/manager';
 import { APIError, RequestConfigError } from './errors';
@@ -646,30 +647,35 @@ export class LLMService implements ILLMService {
           for (const toolCallDelta of toolCallDeltas) {
             if (toolCallDelta.index !== undefined) {
               while (toolCalls.length <= toolCallDelta.index) {
-                toolCalls.push({ id: '', type: 'function' as const, function: { name: '', arguments: '' } });
+                toolCalls.push({ id: '', type: 'function', function: { name: '', arguments: '' }, _isComplete: false });
               }
 
               const currentToolCall = toolCalls[toolCallDelta.index];
+              if (currentToolCall._isComplete) continue;
 
               if (toolCallDelta.id) currentToolCall.id = toolCallDelta.id;
               if (toolCallDelta.type) currentToolCall.type = toolCallDelta.type;
               if (toolCallDelta.function) {
                 if (toolCallDelta.function.name) {
-                  currentToolCall.function.name += toolCallDelta.function.name;
+                  currentToolCall.function.name = toolCallDelta.function.name;
                 }
                 if (toolCallDelta.function.arguments) {
                   currentToolCall.function.arguments += toolCallDelta.function.arguments;
                 }
+              }
 
-                // 当工具调用完整时，通知回调
-                if (currentToolCall.id && currentToolCall.function.name &&
-                    toolCallDelta.function.arguments && callbacks.onToolCall) {
-                  try {
-                    JSON.parse(currentToolCall.function.arguments);
-                    callbacks.onToolCall(currentToolCall);
-                  } catch {
-                    // JSON 还不完整
+              if (currentToolCall.id && currentToolCall.function.name) {
+                try {
+                  JSON.parse(currentToolCall.function.arguments);
+                  const validationResult = toolCallSchema.safeParse(currentToolCall);
+                  if (validationResult.success) {
+                    if (callbacks.onToolCall) {
+                      callbacks.onToolCall(validationResult.data);
+                    }
+                    currentToolCall._isComplete = true;
                   }
+                } catch (e) {
+                  // JSON not complete yet
                 }
               }
             }
@@ -686,10 +692,15 @@ export class LLMService implements ILLMService {
 
       console.log('带工具的流式响应完成, 工具调用数量:', toolCalls.length);
       
+      const finalToolCalls = toolCalls.map(tc => {
+        const { _isComplete, ...rest } = tc;
+        return rest;
+      }).filter(tc => tc.id); // Filter out incomplete/empty tool calls
+
       const response: LLMResponse = {
         content: accumulatedContent,
         reasoning: accumulatedReasoning || undefined,
-        toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
+        toolCalls: finalToolCalls.length > 0 ? finalToolCalls : undefined,
         metadata: { model: modelConfig.defaultModel }
       };
 
@@ -851,7 +862,7 @@ export class LLMService implements ILLMService {
       console.log('成功获取到Gemini带工具的流式响应');
       
       let accumulatedContent = '';
-      const toolCalls: any[] = [];
+      const toolCalls: ToolCall[] = [];
 
       for await (const chunk of result.stream) {
         const text = chunk.text();
@@ -864,7 +875,7 @@ export class LLMService implements ILLMService {
         const functionCalls = chunk.functionCalls();
         if (functionCalls && functionCalls.length > 0) {
           for (const functionCall of functionCalls) {
-            const toolCall: ToolCall = {
+            const toolCallPayload = {
               id: `call_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
               type: 'function' as const,
               function: {
@@ -873,11 +884,16 @@ export class LLMService implements ILLMService {
               }
             };
 
-            toolCalls.push(toolCall);
-
-            console.log('[Gemini] Tool call received:', toolCall);
-            if (callbacks.onToolCall) {
-              callbacks.onToolCall(toolCall);
+            const validationResult = toolCallSchema.safeParse(toolCallPayload);
+            if (validationResult.success) {
+              const validatedToolCall = validationResult.data;
+              toolCalls.push(validatedToolCall);
+              console.log('[Gemini] Tool call received:', validatedToolCall);
+              if (callbacks.onToolCall) {
+                callbacks.onToolCall(validatedToolCall);
+              }
+            } else {
+              console.error('[Gemini] Received invalid tool call structure:', functionCall, validationResult.error);
             }
           }
         }
