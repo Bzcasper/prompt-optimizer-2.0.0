@@ -4,13 +4,15 @@
   >
     <!-- 标题区域 -->
     <NFlex justify="space-between" align="center" :wrap="false">
-      <NText :depth="1" style="font-size: 18px; font-weight: 500;">{{ label }}</NText>
+      <NText :id="labelId" :depth="1" style="font-size: 18px; font-weight: 500;">{{ label }}</NText>
       <NFlex align="center" :size="12">
         <slot name="optimization-mode-selector"></slot>
         <NButton
           type="tertiary"
           size="small"
           @click="openFullscreen"
+          role="button"
+          :aria-label="t('common.expand')"
           :title="$t('common.expand')"
           ghost
           round
@@ -31,6 +33,7 @@
       :value="modelValue"
       @update:value="$emit('update:modelValue', $event)"
       type="textarea"
+      :aria-labelledby="labelId"
       :placeholder="placeholder"
       :rows="4"
       :autosize="{ minRows: 4, maxRows: 12 }"
@@ -96,10 +99,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { NInput, NButton, NText, NSpace, NFlex, NGrid, NGridItem, NIcon } from 'naive-ui'
 import { useFullscreen } from '../composables/useFullscreen'
 import FullscreenDialog from './FullscreenDialog.vue'
+
+const { t } = useI18n()
 
 interface Props {
   modelValue: string
@@ -127,6 +133,8 @@ const emit = defineEmits<{
   'submit': []
   'configModel': []
 }>()
+
+const labelId = useId()
 
 // 使用全屏组合函数
 const { isFullscreen, fullscreenValue, openFullscreen } = useFullscreen(
