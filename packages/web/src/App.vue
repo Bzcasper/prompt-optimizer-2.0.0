@@ -422,6 +422,7 @@ import type { ModelSelectOption, TemplateSelectOption } from '@prompt-optimizer/
   
   // 5. 控制主UI渲染的标志
   const isReady = computed(() => !!services.value && !isInitializing.value)
+  const isDataReady = ref(false)
   
   // 6. 创建所有必要的引用
   const promptService = shallowRef<IPromptService | null>(null)
@@ -859,23 +860,6 @@ import type { ModelSelectOption, TemplateSelectOption } from '@prompt-optimizer/
     }
   })
 
-  watch(() => services.value?.templateManager, async (manager) => {
-    if (manager) {
-      await refreshOptimizeTemplates()
-    } else {
-      templateOptions.value = []
-      clearCurrentTemplateSelection()
-    }
-  }, { immediate: true })
-
-  watch(() => services.value?.modelManager, async (manager) => {
-    if (manager) {
-      await refreshTextModels()
-    } else {
-      textModelOptions.value = []
-    }
-  }, { immediate: true })
-
   watch(() => templateSelectType.value, async () => {
     await refreshOptimizeTemplates()
   })
@@ -883,12 +867,16 @@ import type { ModelSelectOption, TemplateSelectOption } from '@prompt-optimizer/
   // 7. 监听服务初始化
   watch(services, async (newServices) => {
     if (!newServices) return
-  
+
     // 设置服务引用
     promptService.value = newServices.promptService
-    
+
     // 初始化上下文持久化
     await initializeContextPersistence()
+
+    // 初始化模型和模板数据
+    await refreshTextModels()
+    await refreshOptimizeTemplates()
 
     // 确保功能模式已初始化（默认 basic）
     // useFunctionMode 内部已处理默认值与持久化
@@ -900,6 +888,11 @@ import type { ModelSelectOption, TemplateSelectOption } from '@prompt-optimizer/
       promptHistory.initHistory()
     }
     window.addEventListener('prompt-optimizer:history-refresh', handleGlobalHistoryRefresh)
+
+    // 所有数据加载完成后，设置isDataReady
+    await nextTick() // 等待DOM更新
+    isDataReady.value = true
+    console.log('[App] All initial data loaded. UI is ready.')
   })
   
   // 8. 处理数据导入成功后的刷新
