@@ -26,7 +26,7 @@ export const functionDefinitionSchema = z.object({
 });
 
 export const toolDefinitionSchema = z.object({
-  type: z.literal('function'),
+  type: z.enum(['function', 'web_search']),
   function: functionDefinitionSchema,
 });
 
@@ -75,6 +75,17 @@ export interface VariableDefinition {
   createdAt: Date;
   /** 更新时间 */
   updatedAt: Date;
+}
+
+/**
+ * Web搜索工具定义
+ */
+export interface WebSearchTool extends ToolDefinition {
+  type: 'web_search';
+  parameters: {
+    query: string;
+    // other search-specific parameters...
+  };
 }
 
 /**
