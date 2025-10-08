@@ -31,6 +31,18 @@ export class PromptService implements IPromptService {
   }
 
   /**
+   * 模拟执行网页搜索
+   * @param query 搜索查询
+   * @returns 搜索结果字符串
+   */
+  private performWebSearch(query: string): string {
+    console.log(`[PromptService] Simulating web search for: ${query}`);
+    // In a real implementation, this would call an external search API.
+    // For now, returning a placeholder result.
+    return `Simulated web search results for "${query}":\n- Result 1: Official documentation link.\n- Result 2: API reference for the latest version.`;
+  }
+
+  /**
    * 检查依赖服务是否已初始化
    */
   private checkDependencies() {
@@ -101,13 +113,17 @@ export class PromptService implements IPromptService {
       const context: TemplateContext = {
         originalPrompt: request.targetPrompt,
         optimizationMode: request.optimizationMode,
-        // 🆕 传递高级上下文信息到模板
         customVariables: request.advancedContext?.variables,
         conversationMessages: request.advancedContext?.messages,
-        tools: request.advancedContext?.tools  // 🆕 工具信息
+        tools: request.advancedContext?.tools,
       };
 
-      // 🆕 如果有会话消息，将其格式化为文本并添加到上下文
+      // 检查是否需要执行网页搜索
+      const keywords = ["latest API", "documentation", "最新API", "文档"];
+      if (keywords.some(keyword => request.targetPrompt.includes(keyword))) {
+        context.webSearchResults = this.performWebSearch(request.targetPrompt);
+      }
+
       if (request.advancedContext?.messages && request.advancedContext.messages.length > 0) {
         const conversationText = TemplateProcessor.formatConversationAsText(request.advancedContext.messages);
         context.conversationContext = conversationText;

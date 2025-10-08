@@ -56,6 +56,17 @@ export interface VariableDefinition {
 }
 
 /**
+ * Web搜索工具定义
+ */
+export interface WebSearchTool extends ToolDefinition {
+  type: 'web_search';
+  parameters: {
+    query: string;
+    // other search-specific parameters...
+  };
+}
+
+/**
  * 变量导入导出数据格式
  */
 export interface VariableExportData {

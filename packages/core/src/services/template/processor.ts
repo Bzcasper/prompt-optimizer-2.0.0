@@ -18,6 +18,7 @@ export interface TemplateContext {
   // 格式化的上下文文本（用于模板注入）
   conversationContext?: string;                    // 格式化的会话上下文
   toolsContext?: string;                           // 🆕 格式化的工具上下文
+  webSearchResults?: string;                       // 网页搜索结果
   // Allow additional string properties for template flexibility
   // but with stricter typing than the previous implementation
   [key: string]: string | undefined | Record<string, string> | ConversationMessage[] | ToolDefinition[];

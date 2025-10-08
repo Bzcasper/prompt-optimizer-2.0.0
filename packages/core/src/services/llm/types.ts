@@ -19,7 +19,7 @@ export interface FunctionDefinition {
 }
 
 export interface ToolDefinition {
-  type: 'function';
+  type: 'function' | 'web_search';
   function: FunctionDefinition;
 }
 /**
