@@ -1,5 +1,3 @@
-import { Template } from '../types';
-
 export const TOPIC_IDEA_GENERATOR: Template = {
   id: 'topic-idea-generator',
   name: 'Topic Idea Generator',
