@@ -1,6 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { ref } from 'vue'
 import ModelManager from '../../../src/components/ModelManager.vue'
 
 // Mock dependencies
@@ -135,6 +134,14 @@ describe('ModelManager', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     wrapper = null
+    // Suppress console logs for these tests
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   const createWrapper = (props = {}) => {
@@ -223,41 +230,41 @@ describe('ModelManager', () => {
     })
   }
 
-  describe('组件渲染', () => {
-    it('应该正确渲染并获取服务', () => {
+  describe('Component Rendering', () => {
+    it('should render correctly and fetch services', () => {
       wrapper = createWrapper()
 
-      // 验证组件能正常挂载
+      // Verify component can be mounted
       expect(wrapper.vm).toBeDefined()
 
-      // 验证服务调用
+      // Verify service calls
       expect(mockServices.value.modelManager.getAllModels).toHaveBeenCalled()
     })
   })
 
-  describe('核心功能测试', () => {
-    it('应该加载文本模型列表', () => {
+  describe('Core Functionality Tests', () => {
+    it('should load the list of text models', () => {
       wrapper = createWrapper()
       expect(mockServices.value.modelManager.getAllModels).toHaveBeenCalled()
     })
 
-    it('应该支持模型编辑功能', async () => {
+    it('should support model editing functionality', async () => {
       wrapper = createWrapper()
 
-      // 设置编辑模式
+      // Set edit mode
       if (wrapper.vm.editModel) {
         await wrapper.vm.editModel('test-model-1')
         expect(mockServices.value.modelManager.getModel).toHaveBeenCalledWith('test-model-1')
       }
     })
 
-    it('应该处理错误情况', async () => {
-      // Mock 失败的API调用
+    it('should handle error scenarios', async () => {
+      // Mock a failed API call
       mockServices.value.modelManager.getAllModels.mockRejectedValueOnce(new Error('Network error'))
 
       wrapper = createWrapper()
 
-      // 验证组件仍能正常渲染
+      // Verify component still renders correctly
       expect(wrapper.vm).toBeDefined()
     })
   })

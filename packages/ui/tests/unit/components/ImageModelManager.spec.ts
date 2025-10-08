@@ -39,6 +39,7 @@ vi.mock('../../../src/composables/useImageModelManager', () => ({
     ]),
     isLoading: ref(false),
     error: ref(null),
+    initialize: vi.fn(),
     addModel: vi.fn().mockResolvedValue(undefined),
     updateModel: vi.fn().mockResolvedValue(undefined),
     deleteModel: vi.fn().mockResolvedValue(undefined),
@@ -63,6 +64,14 @@ describe('ImageModelManager', () => {
         ...props
       },
       global: {
+        provide: {
+          imageRegistry: {
+            getAvailableProviders: vi.fn().mockReturnValue([]),
+          },
+          imageService: {
+            testConnection: vi.fn().mockResolvedValue({ success: true }),
+          },
+        },
         stubs: {
           // Stub all NaiveUI components
           'n-card': { template: '<div><slot name="header" /><slot /></div>' },
@@ -84,15 +93,15 @@ describe('ImageModelManager', () => {
     })
   }
 
-  describe('核心功能', () => {
-    it('应该正确渲染组件', () => {
+  describe('Core Functionality', () => {
+    it('should render the component correctly', () => {
       wrapper = createWrapper()
       expect(wrapper.vm).toBeDefined()
     })
 
-    it('应该加载图像模型提供商', () => {
+    it('should load image model providers', () => {
       wrapper = createWrapper()
-      // 验证组件正常挂载即可，具体业务逻辑由 useImageModelManager 处理
+      // The component should mount correctly; business logic is handled by useImageModelManager
       expect(wrapper.vm).toBeDefined()
     })
   })

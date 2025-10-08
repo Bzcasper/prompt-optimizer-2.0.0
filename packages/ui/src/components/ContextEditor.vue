@@ -2,7 +2,7 @@
   <NModal
     v-model:show="localVisible" 
     preset="card"
-    :title="title"
+    :title="t('contextEditor.title')"
     :style="modalStyle"
     size="huge"
     :bordered="false"
@@ -20,32 +20,32 @@
     <!-- 顶部工具栏 -->
     <template #header-extra>
       <NSpace :size="buttonSize" role="toolbar" :aria-label="aria.getLabel('statisticsToolbar')">
-        <!-- 统计信息 -->
+        <!-- Statistics -->
         <NTag 
           :size="tagSize" 
           type="info"
           role="status"
-          :aria-label="aria.getLabel('messageCount', `${localState.messages.length} 条消息`)"
+          :aria-label="aria.getLabel('messageCount', `${localState.messages.length} messages`)"
         >
-          {{ localState.messages.length }} 条消息
+          {{ localState.messages.length }} messages
         </NTag>
         <NTag 
           v-if="variableCount > 0" 
           :size="tagSize" 
           type="success"
           role="status"
-          :aria-label="aria.getLabel('variableCount', `变量: ${variableCount}`)"
+          :aria-label="aria.getLabel('variableCount', `Variables: ${variableCount}`)"
         >
-          变量: {{ variableCount }}
+          Variables: {{ variableCount }}
         </NTag>
         <NTag 
           v-if="localState.tools.length > 0" 
           :size="tagSize" 
           type="primary"
           role="status"
-          :aria-label="aria.getLabel('toolCount', `工具: ${localState.tools.length}`)"
+          :aria-label="aria.getLabel('toolCount', `Tools: ${localState.tools.length}`)"
         >
-          工具: {{ localState.tools.length }}
+          Tools: {{ localState.tools.length }}
         </NTag>
       </NSpace>
     </template>
@@ -60,16 +60,16 @@
         :aria-label="aria.getLabel('editorTabs')"
         @update:value="handleTabChange"
       >
-        <!-- 消息编辑标签页 -->
+        <!-- Message Editor Tab -->
         <NTabPane 
           name="messages" 
-          tab="消息编辑"
+          :tab="t('contextEditor.tabs.messages')"
           role="tabpanel"
           :aria-label="aria.getLabel('messagesTab')"
           :aria-describedby="aria.getDescription('messagesTab')"
         >
           <div class="messages-panel" role="region" :aria-label="aria.getLabel('messagesPanel')">
-            <!-- 空状态 -->
+            <!-- Empty State -->
             <NEmpty 
               v-if="localState.messages.length === 0" 
               :description="t('contextEditor.noMessages')"
@@ -103,14 +103,14 @@
               </template>
             </NEmpty>
 
-            <!-- 消息列表 -->
+            <!-- Message List -->
             <NScrollbar v-else :style="scrollbarStyle" :aria-label="aria.getLabel('messagesList')">
               <NList role="list" :aria-label="aria.getLabel('conversationMessages')">
                 <NListItem 
                   v-for="(message, index) in localState.messages" 
                   :key="`message-${index}`"
                   role="listitem"
-                  :aria-label="aria.getLabel('messageItem', `消息 ${index + 1}: ${message.role}`)"
+                  :aria-label="aria.getLabel('messageItem', `Message ${index + 1}: ${message.role}`)"
                 >
                   <NCard
                     :size="cardSize"
@@ -121,12 +121,12 @@
                     <template #header>
                       <NSpace justify="space-between" align="center">
                         <NSpace align="center" :size="4">
-                          <!-- 消息序号 -->
+                          <!-- Message Index -->
                           <NTag :size="tagSize" round>
                             {{ index + 1 }}
                           </NTag>
                           
-                          <!-- 角色选择 -->
+                          <!-- Role Selection -->
                           <NSelect 
                             v-model:value="message.role"
                             :size="size"
@@ -136,24 +136,24 @@
                             @update:value="handleMessageUpdate(index, message)"
                           />
                           
-                          <!-- 变量统计 -->
+                          <!-- Variable Statistics -->
                           <NTag 
                             v-if="getMessageVariables(message.content).detected.length > 0" 
                             :size="tagSize" 
                             type="info"
                           >
-                            变量: {{ getMessageVariables(message.content).detected.length }}
+                            Variables: {{ getMessageVariables(message.content).detected.length }}
                           </NTag>
                           <NTag 
                             v-if="getMessageVariables(message.content).missing.length > 0" 
                             :size="tagSize" 
                             type="warning"
                           >
-                            缺失: {{ getMessageVariables(message.content).missing.length }}
+                            Missing: {{ getMessageVariables(message.content).missing.length }}
                           </NTag>
                         </NSpace>
                         
-                        <!-- 消息操作按钮 -->
+                        <!-- Message Action Buttons -->
                         <NSpace :size="4">
                           <NButton
                             @click="togglePreview(index)"
@@ -240,7 +240,7 @@
                             size="tiny"
                             text
                             type="warning"
-                            :title="t('conversation.clickToCreateVariable') || '点击创建变量'"
+                            :title="t('conversation.clickToCreateVariable') || 'Click to create variable'"
                             @click="handleCreateVariableAndOpenManager(varName)"
                           >
                             {{ varName }}
@@ -249,7 +249,7 @@
                             +{{ getMessageVariables(message.content).missing.length - 3 }}
                           </NTag>
                           <NButton size="tiny" quaternary @click="emit('openVariableManager')">
-                            {{ t('variables.management.title') || '变量管理' }}
+                            {{ t('variables.management.title') || 'Variable Management' }}
                           </NButton>
                         </NSpace>
                       </NCard>
@@ -261,7 +261,7 @@
                 </NListItem>
               </NList>
 
-              <!-- 添加消息按钮 -->
+              <!-- Add Message Button -->
               <div class="mt-4">
                 <NCard :size="cardSize" embedded dashed>
                   <NSpace justify="center">
@@ -287,10 +287,10 @@
           </div>
         </NTabPane>
         
-        <!-- 模板管理标签页 -->
-        <NTabPane name="templates" tab="快速模板">
+        <!-- Template Management Tab -->
+        <NTabPane name="templates" :tab="t('contextEditor.tabs.templates')">
           <div class="templates-panel" role="region" :aria-label="aria.getLabel('templatesPanel')">
-            <!-- 模板分类和筛选 -->
+            <!-- Template Category and Filter -->
             <NCard size="small" embedded class="mb-4">
               <NSpace align="center" justify="space-between">
                 <NSpace align="center" :size="8">
@@ -305,7 +305,7 @@
               </NSpace>
             </NCard>
 
-            <!-- 模板列表 -->
+            <!-- Template List -->
             <NEmpty 
               v-if="quickTemplates.length === 0" 
               :description="t('contextEditor.noTemplates')"
@@ -344,7 +344,7 @@
                             {{ template.name }}
                           </NTag>
                           <NTag v-if="template.messages" :size="tagSize" type="info">
-                            {{ template.messages.length }} 条消息
+                            {{ template.messages.length }} messages
                           </NTag>
                         </NSpace>
                         <NSpace :size="4">
@@ -353,7 +353,7 @@
                             :size="buttonSize"
                             quaternary
                             circle
-                            :title="t('common.preview') || '预览'"
+                            :title="t('common.preview') || 'Preview'"
                           >
                             <template #icon>
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -385,7 +385,7 @@
                         {{ template.description || t('contextEditor.noDescription') }}
                       </NText>
                       
-                      <!-- 模板消息预览 -->
+                      <!-- Template Message Preview -->
                       <div v-if="template.messages && template.messages.length > 0" class="template-preview mt-3">
                         <div 
                           v-for="(message, index) in template.messages.slice(0, 2)" 
@@ -411,10 +411,10 @@
           </div>
         </NTabPane>
 
-        <!-- 变量管理标签页 -->
-        <NTabPane name="variables" tab="变量管理">
+        <!-- Variable Management Tab -->
+        <NTabPane name="variables" :tab="t('contextEditor.tabs.variables')">
           <div class="variables-panel" role="region" :aria-label="aria.getLabel('variablesPanel')">
-            <!-- 变量状态信息 -->
+            <!-- Variable Status Information -->
             <NCard size="small" embedded class="mb-4">
               <NSpace align="center" justify="space-between">
                 <NSpace align="center" :size="8">
@@ -429,7 +429,7 @@
               </NSpace>
             </NCard>
 
-            <!-- 变量列表 -->
+            <!-- Variable List -->
             <NEmpty 
               v-if="Object.keys(localState.variables).length === 0 && (!availableVariables || globalCustomVariableCount === 0)" 
               :description="t('contextEditor.noVariables')"
@@ -454,7 +454,7 @@
             </NEmpty>
 
             <div v-else>
-              <!-- 变量表格 -->
+              <!-- Variable Table -->
               <NDataTable
                 :columns="variableColumns"
                 :data="variableTableData"
@@ -465,7 +465,7 @@
                 class="mb-4"
               />
               
-              <!-- 添加变量按钮 -->
+              <!-- Add Variable Button -->
               <NCard :size="cardSize" embedded dashed>
                 <NSpace justify="center">
                   <NButton 
@@ -489,10 +489,10 @@
           </div>
         </NTabPane>
 
-        <!-- 工具管理标签页 -->
-        <NTabPane v-if="showToolManager" name="tools" tab="工具管理">
+        <!-- Tool Management Tab -->
+        <NTabPane v-if="showToolManager" name="tools" :tab="t('contextEditor.tabs.tools')">
           <div class="tools-panel">
-            <!-- 工具列表内容 -->
+            <!-- Tool List Content -->
             <NEmpty v-if="localState.tools.length === 0" :description="t('contextEditor.noTools')">
               <template #icon>
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -538,7 +538,7 @@
                           :size="buttonSize"
                           quaternary
                           circle
-                          :title="t('common.focus') || '聚焦此消息'"
+                            :title="t('common.focus') || 'Focus this message'"
                         >
                           <template #icon>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -574,7 +574,7 @@
               </NListItem>
             </NList>
             
-            <!-- 添加工具按钮 -->
+            <!-- Add Tool Button -->
             <div v-if="localState.tools.length > 0" class="mt-4">
               <NCard :size="cardSize" embedded dashed>
                 <NSpace justify="center">
@@ -602,11 +602,11 @@
     </div>
 
     
-    <!-- 底部操作栏 -->
+    <!-- Bottom Action Bar -->
     <template #action>
       <NSpace justify="space-between">
         <NSpace>
-          <!-- 导入导出按钮 -->
+          <!-- Import/Export Buttons -->
           <NButton
             @click="handleImport"
             :size="buttonSize"
@@ -657,21 +657,21 @@
     </template>
   </NModal>
 
-  <!-- 模板预览弹窗 -->
+  <!-- Template Preview Modal -->
   <NModal
     v-model:show="showTemplatePreview"
     preset="card"
-    :title="previewTemplate?.name || t('common.preview') || '模板详情'"
+    :title="previewTemplate?.name || t('common.preview') || 'Template Details'"
     :mask-closable="true"
     :style="previewModalStyle"
   >
     <div>
       <NText depth="3" class="mb-2 block">
-        {{ previewTemplate?.description || t('contextEditor.noDescription') || '无描述' }}
+        {{ previewTemplate?.description || t('contextEditor.noDescription') || 'No description' }}
       </NText>
 
       <NAlert v-if="!previewTemplate" type="warning" :show-icon="false" class="mb-2">
-        {{ t('contextEditor.noTemplates') || '暂无模板' }}
+        {{ t('contextEditor.noTemplates') || 'No templates available' }}
       </NAlert>
 
       <NScrollbar v-else :style="scrollbarStyle">
@@ -694,7 +694,7 @@
     <template #action>
       <NSpace justify="end">
         <NButton @click="showTemplatePreview = false" :size="buttonSize">
-          {{ t('common.close') || '关闭' }}
+          {{ t('common.close') || 'Close' }}
         </NButton>
         <NButton
           type="primary"
@@ -702,13 +702,13 @@
           :disabled="!previewTemplate || disabled"
           @click="previewTemplate && (handleTemplateApply(previewTemplate), showTemplatePreview = false)"
         >
-          {{ t('contextEditor.applyTemplate') || '应用模板' }}
+          {{ t('contextEditor.applyTemplate') || 'Apply Template' }}
         </NButton>
       </NSpace>
     </template>
   </NModal>
 
-  <!-- 工具编辑器（简化版） -->
+  <!-- Tool Editor (simplified) -->
   <NModal
     v-model:show="toolEditState.showEditor"
     preset="card"
@@ -716,7 +716,7 @@
     style="width: 600px"
   >
     <NSpace vertical>
-      <!-- 示例提示（仅新建时显示） -->
+      <!-- Example hint (only shown when creating) -->
       <NAlert
         v-if="toolEditState.editingIndex === null"
         type="info"
@@ -725,7 +725,7 @@
         {{ t('contextEditor.exampleTemplateDesc') }}
       </NAlert>
 
-      <!-- 基本信息 -->
+      <!-- Basic Information -->
       <NCard size="small" :title="t('contextEditor.basicInfo')">
         <NSpace vertical v-if="toolEditState.editingTool">
           <NInput
@@ -740,7 +740,7 @@
         </NSpace>
       </NCard>
 
-      <!-- 参数配置 -->
+      <!-- Parameter Configuration -->
       <NCard size="small" :title="t('contextEditor.parameters')">
         <NInput
           v-model:value="parametersJson"
@@ -771,7 +771,7 @@
     </template>
   </NModal>
 
-  <!-- 导入对话框 -->
+  <!-- Import Dialog -->
   <NModal
     v-model:show="showImportDialog"
     preset="dialog"
@@ -781,7 +781,7 @@
     :mask-closable="false"
   >
     <template #default>
-      <!-- 格式选择 -->
+      <!-- Format Selection -->
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">{{ t('contextEditor.importFormat') }}</label>
         <NSpace size="small" wrap>
@@ -800,7 +800,7 @@
         </p>
       </div>
 
-      <!-- 文件上传 -->
+      <!-- File Upload -->
       <div class="mb-4">
         <NSpace align="center" :size="8" class="mb-2">
           <input
@@ -828,7 +828,7 @@
         </NSpace>
       </div>
 
-      <!-- 文本输入区域 -->
+      <!-- Text Input Area -->
       <NInput
         v-model:value="importData"
         type="textarea"
@@ -845,7 +845,7 @@
     <template #action>
       <NSpace justify="end">
         <NButton @click="showImportDialog = false" :size="buttonSize">
-          {{ t('common.cancel') || '取消' }}
+          {{ t('common.cancel') || 'Cancel' }}
         </NButton>
         <NButton
           @click="handleImportSubmit"
@@ -860,7 +860,7 @@
     </template>
   </NModal>
 
-  <!-- 导出对话框 -->
+  <!-- Export Dialog -->
   <NModal
     v-model:show="showExportDialog"
     preset="dialog"
@@ -870,7 +870,7 @@
     :mask-closable="false"
   >
     <template #default>
-      <!-- 格式选择 -->
+      <!-- Format Selection -->
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">{{ t('contextEditor.exportFormat') }}</label>
         <NSpace size="small" wrap>
@@ -889,7 +889,7 @@
         </p>
       </div>
 
-      <!-- 导出预览 -->
+      <!-- Export Preview -->
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">{{ t('contextEditor.exportPreview') }}</label>
         <NInput
@@ -912,7 +912,7 @@
     <template #action>
       <NSpace justify="space-between">
         <NButton @click="showExportDialog = false" :size="buttonSize">
-          {{ t('common.cancel') || '取消' }}
+          {{ t('common.cancel') || 'Cancel' }}
         </NButton>
         
         <NSpace>
@@ -947,7 +947,7 @@
     </template>
   </NModal>
 
-  <!-- 变量编辑对话框 -->
+  <!-- Variable Edit Dialog -->
   <NModal
     v-model:show="variableEditState.show"
     preset="card"
@@ -956,7 +956,7 @@
     :mask-closable="false"
   >
     <NSpace vertical>
-      <!-- 变量名 -->
+      <!-- Variable Name -->
       <div>
         <label class="block text-sm font-medium mb-2">{{ t('contextEditor.variableName') }}</label>
         <NInput
@@ -970,7 +970,7 @@
         </NText>
       </div>
       
-      <!-- 变量值 -->
+      <!-- Variable Value -->
       <div>
         <label class="block text-sm font-medium mb-2">{{ t('contextEditor.variableValue') }}</label>
         <NInput
@@ -987,7 +987,7 @@
     <template #action>
       <NSpace justify="end">
         <NButton @click="cancelVariableEdit" :size="buttonSize">
-          {{ t('common.cancel') || '取消' }}
+          {{ t('common.cancel') || 'Cancel' }}
         </NButton>
         <NButton
           @click="saveVariable"
@@ -1001,7 +1001,7 @@
     </template>
   </NModal>
 
-  <!-- 实时区域用于屏幕阅读器 -->
+  <!-- Live region for screen readers -->
   <div 
     role="status" 
     aria-live="polite" 
@@ -1012,7 +1012,7 @@
     {{ liveRegionMessage }}
   </div>
 
-  <!-- 断言性实时区域 -->
+  <!-- Assertive live region -->
   <div 
     role="alert" 
     aria-live="assertive" 
@@ -1045,13 +1045,13 @@ import { PREDEFINED_VARIABLES } from '../types/variable'
 
 const { t, locale } = useI18n()
 
-// 性能监控
+// Performance Monitoring
 const { recordUpdate } = usePerformanceMonitor('ContextEditor')
 
-// 防抖节流
+// Debounce and Throttle
 const { debounce, throttle, batchExecute } = useDebounceThrottle()
 
-// 可访问性支持
+// Accessibility Support
 const {
   aria,
   announce,
@@ -1060,10 +1060,10 @@ const {
   liveRegionMessage
 } = useAccessibility('ContextEditor')
 
-// 导入导出功能
+// Import/Export functionality
 const contextEditor = useContextEditor()
 
-// 响应式配置
+// Responsive configuration
 const {
   modalWidth,
   buttonSize: responsiveButtonSize,
@@ -1082,7 +1082,7 @@ const props = withDefaults(defineProps<ContextEditorProps & {
   visible: false,
   showToolManager: true,
   optimizationMode: 'system',
-  title: '上下文编辑器',
+  title: 'Context Editor',
   width: '90vw',
   height: '85vh',
   availableVariables: () => ({})
@@ -1095,7 +1095,7 @@ const loading = ref(false)
 const activeTab = ref('messages')
 const localVisible = ref(props.visible)
 
-// 导入导出状态
+// Import/Export state
 const showImportDialog = ref(false)
 const showExportDialog = ref(false)
 const importData = ref('')
@@ -1103,14 +1103,14 @@ const importError = ref('')
 const selectedImportFormat = ref('smart')
 const selectedExportFormat = ref('standard')
 const fileInputRef = ref<HTMLInputElement | null>(null)
-// 变量值输入框引用（用于自动聚焦）
+// Reference to variable value input for autofocus
 const variableValueInputRef = ref(null)
 
-// 模板预览状态
+// Template preview state
 const showTemplatePreview = ref(false)
 const previewTemplate = ref<QuickTemplateDefinition | null>(null)
 
-// 使用shallowRef优化深度对象
+// Use shallowRef to optimize deep objects
 const localState = shallowRef<ContextEditorState>({
   messages: [],
   variables: {},
@@ -1120,16 +1120,16 @@ const localState = shallowRef<ContextEditorState>({
   mode: 'edit'
 })
 
-// 预览模式控制 - 使用Map优化
+// Preview mode control - using Map for optimization
 const previewMode = shallowRef<Map<number, boolean>>(new Map())
 
-// 批量状态更新
+// Batch state updates
 const batchStateUpdate = batchExecute((updates: Array<() => void>) => {
   updates.forEach(update => update())
   recordUpdate()
-}, 16) // 使用16ms批处理，匹配60fps
+}, 16) // Batching at 16ms to match 60fps
 
-// 计算属性
+// Computed properties
 const buttonSize = computed(() => {
   return responsiveButtonSize.value
 })
@@ -1153,7 +1153,7 @@ const modalStyle = computed(() => ({
   height: isMobile.value ? '95vh' : (props.height || '85vh')
 }))
 
-// 模板预览弹窗尺寸（限制宽度，移动端占满宽度）
+// Template preview modal size (limited width, full width on mobile)
 const previewModalStyle = computed(() => ({
   width: isMobile.value ? '95vw' : '840px',
   maxWidth: '95vw'
@@ -1174,7 +1174,7 @@ const variableCount = computed(() => {
   return variables.size
 })
 
-// 仅统计“全局自定义变量”（排除预定义变量），用于避免“全局7”的误导
+// Count only "global custom variables" (excluding predefined ones) to avoid misleading "Global 7"
 const globalCustomVariableCount = computed(() => {
   const available = props.availableVariables || {}
   let count = 0
@@ -1192,16 +1192,16 @@ const roleOptions = computed(() => [
   { label: t('conversation.roles.assistant'), value: 'assistant' }
 ])
 
-// 快速模板管理 - 根据优化模式和语言获取
+// Quick template management - get by optimization mode and language
 const quickTemplates = computed(() => {
   const currentLanguage = locale?.value || 'zh-CN'
   return quickTemplateManager.getTemplates(props.optimizationMode, currentLanguage)
 })
 
-// 变量管理相关计算属性
+// Computed properties for variable management
 const finalVars = computed(() => {
   const result = { ...props.availableVariables }
-  // 合并上下文变量，并过滤掉预定义变量名的覆盖
+  // Merge context variables and filter out overrides of predefined variable names
   Object.entries(localState.value.variables).forEach(([name, value]) => {
     if (!PREDEFINED_VARIABLES.includes(name as any)) {
       result[name] = value
@@ -1210,11 +1210,11 @@ const finalVars = computed(() => {
   return result
 })
 
-// 变量表格数据
+// Variable table data
 const variableTableData = computed(() => {
   const data = []
   
-  // 添加全局变量（只读显示）
+  // Add global variables (read-only display)
   if (props.availableVariables) {
     Object.entries(props.availableVariables).forEach(([name, value]) => {
       if (!PREDEFINED_VARIABLES.includes(name as any)) {
@@ -1231,7 +1231,7 @@ const variableTableData = computed(() => {
     })
   }
   
-  // 添加上下文变量
+  // Add context variables
   Object.entries(localState.value.variables).forEach(([name, value]) => {
     if (!PREDEFINED_VARIABLES.includes(name as any)) {
       data.push({
@@ -1249,7 +1249,7 @@ const variableTableData = computed(() => {
   return data
 })
 
-// 变量表格列定义
+// Variable table column definitions
 const variableColumns = computed((): DataTableColumns => [
   {
     title: t('contextEditor.variableName'),
@@ -1320,12 +1320,12 @@ const variableColumns = computed((): DataTableColumns => [
       const actions = []
       
       if (!row.readonly) {
-        // 编辑按钮
+        // Edit button
         actions.push(
           h(NButton, {
             size: 'small',
             quaternary: true,
-            title: t('common.edit') || '编辑',
+            title: t('common.edit') || 'Edit',
             onClick: () => editVariable(row.name)
           }, {
             icon: () => h('svg', {
@@ -1345,13 +1345,13 @@ const variableColumns = computed((): DataTableColumns => [
           })
         )
         
-        // 删除按钮
+        // Delete button
         actions.push(
           h(NButton, {
             size: 'small',
             quaternary: true,
             type: 'error',
-            title: t('common.delete') || '删除',
+            title: t('common.delete') || 'Delete',
             onClick: () => deleteVariable(row.name)
           }, {
             icon: () => h('svg', {
@@ -1377,7 +1377,7 @@ const variableColumns = computed((): DataTableColumns => [
   }
 ])
 
-// 工具函数（统一使用注入函数）
+// Utility functions (use injected functions consistently)
 const getMessageVariables = (content: string) => {
   const detected = props.scanVariables(content || '') || []
   const missing = detected.filter(varName => finalVars.value[varName] === undefined)
@@ -1404,17 +1404,17 @@ const getPlaceholderText = (role: string) => {
 const getRoleLabel = (role: string) => {
   switch (role) {
     case 'system':
-      return t('conversation.roles.system') || '系统'
+      return t('conversation.roles.system') || 'System'
     case 'user':
-      return t('conversation.roles.user') || '用户'
+      return t('conversation.roles.user') || 'User'
     case 'assistant':
-      return t('conversation.roles.assistant') || '助手'
+      return t('conversation.roles.assistant') || 'Assistant'
     default:
       return role
   }
 }
 
-// 可访问性事件处理（不启用键盘焦点陷阱，避免拦截箭头键）
+// Accessibility event handling (keyboard focus trap not enabled to avoid intercepting arrow keys)
 const handleModalOpen = () => {
   nextTick(() => {
     announce(aria.getLiveRegionText('modalOpened'), 'assertive')
@@ -1427,11 +1427,11 @@ const handleModalClose = () => {
 
 const handleTabChange = (activeKey: string) => {
   recordUpdate()
-  const tabName = activeKey === 'messages' ? '消息编辑' : '工具管理'
+  const tabName = activeKey === 'messages' ? 'Message Editor' : 'Tool Management'
   announce(aria.getLiveRegionText('tabChanged').replace('{tab}', tabName), 'polite')
 }
 
-// 消息处理方法
+// Message handling methods
 const addMessage = () => {
   const newMessage: ConversationMessage = {
     role: 'user',
@@ -1471,9 +1471,9 @@ const togglePreview = throttle((index: number) => {
   recordUpdate()
 }, 100, 'togglePreview')
 
-// 工具管理方法 - 实际实现在后面
+// Tool management methods - actual implementation follows
 
-// 模板管理方法
+// Template management methods
 const handleTemplatePreview = (template: QuickTemplateDefinition) => {
   previewTemplate.value = template
   showTemplatePreview.value = true
@@ -1485,18 +1485,18 @@ const handleTemplateApply = (template: any) => {
     return
   }
   
-  // 应用模板到本地状态
+  // Apply template to local state
   localState.value.messages = [...template.messages]
   handleStateChange()
   
-  // 切换到消息编辑标签页
+  // Switch to the message editor tab
   activeTab.value = 'messages'
   
-  // 通知用户模板已应用
+  // Notify user that the template has been applied
   announce(t('contextEditor.templateApplied', { name: template.name }), 'polite')
 }
 
-// 事件处理方法
+// Event handling methods
 const handleVisibilityChange = (visible: boolean) => {
   localVisible.value = visible
   emit('update:visible', visible)
@@ -1507,7 +1507,7 @@ const handleStateChange = () => {
   emit('contextChange', [...localState.value.messages], { ...localState.value.variables })
 }
 
-// ============ 工具管理：状态、校验与事件 ============
+// ============ Tool Management: State, Validation, and Events ============
 interface ToolEditState {
   editingIndex: number | null
   editingTool: ToolDefinition | null
@@ -1559,14 +1559,14 @@ const createEmptyToolTemplate = (): ToolDefinition => ({
   }
 })
 
-// 独立定义字符串变量，避免内联复杂字符串
+// Define string variables separately to avoid complex inline strings
 const defaultParametersJson = `{
   "type": "object",
   "properties": {},
   "required": []
 }`
 
-// 默认参数对象
+// Default parameters object
 const defaultParametersObject = {
   type: 'object',
   properties: {},
@@ -1601,7 +1601,7 @@ const isValidTool = computed(() => {
   }
 })
 
-// 固定占位符：不通过 i18n，避免大括号与 i18n 插值冲突
+// Fixed placeholders: do not use i18n to avoid conflicts with i18n interpolation
 
 const useWeatherExample = () => {
   toolEditState.value.editingTool = createWeatherToolTemplate()
@@ -1624,13 +1624,13 @@ const addTool = () => {
 
 const editTool = (index: number) => {
   if (index < 0 || index >= localState.value.tools.length) {
-    console.error(`工具编辑失败：索引 ${index} 超出范围`)
+    console.error(`Tool edit failed: index ${index} is out of range`)
     return
   }
   
   const tool = localState.value.tools[index]
   if (!tool) {
-    console.error(`工具编辑失败：索引 ${index} 处的工具不存在`)
+    console.error(`Tool edit failed: tool at index ${index} does not exist`)
     return
   }
   
@@ -1653,10 +1653,10 @@ const saveTool = () => {
   const current = state.editingTool ? JSON.parse(JSON.stringify(state.editingTool)) as ToolDefinition : null
   if (!current) return
   
-  // 更严格的防护性检查
+  // Stricter defensive check
   if (!current.function) {
-    console.error('工具保存失败：缺少 function 属性')
-    jsonError.value = '工具数据结构错误：缺少 function 属性'
+    console.error('Tool save failed: missing function attribute')
+    jsonError.value = 'Tool data structure error: missing function attribute'
     return
   }
   
@@ -1695,7 +1695,7 @@ const deleteTool = (index: number) => {
   announce(t('contextEditor.toolDeleted', { name: tool?.function?.name || '' }), 'polite')
 }
 
-// 工具变更自动同步给父级（保持向后兼容）
+// Automatically sync tool changes to the parent (for backward compatibility)
 watch(() => localState.value.tools, (newTools) => {
   emit('update:tools', [...newTools])
 }, { deep: true })
@@ -1722,7 +1722,7 @@ const handleCancel = () => {
   handleVisibilityChange(false)
 }
 
-// 变量管理相关状态
+// State related to variable management
 const variableEditState = ref<{
   show: boolean
   isEditing: boolean
@@ -1739,7 +1739,7 @@ const variableEditState = ref<{
   value: ''
 })
 
-// 变量管理方法
+// Variable management methods
 const addVariable = () => {
   variableEditState.value = {
     show: true,
@@ -1785,32 +1785,32 @@ const deleteVariable = (name: string) => {
 const saveVariable = () => {
   const { isEditing, editingName, name, value } = variableEditState.value
   
-  // 验证变量名
+  // Validate variable name
   if (!name.trim()) {
     return
   }
   
-  // 检查是否是预定义变量名
+  // Check if it is a predefined variable name
   if (PREDEFINED_VARIABLES.includes(name as any)) {
     announce(t('contextEditor.predefinedVariableError'), 'assertive')
     return
   }
   
-  // 如果是编辑模式且变量名发生变化，需要删除旧的
+  // If in edit mode and the variable name has changed, the old one needs to be deleted
   if (isEditing && editingName !== name) {
     delete localState.value.variables[editingName]
   }
   
-  // 设置新值
+  // Set new value
   localState.value.variables[name] = value
   
-  // 关闭编辑器
+  // Close the editor
   variableEditState.value.show = false
   
-  // 触发状态更新
+  // Trigger state update
   handleStateChange()
   
-  // 通知用户
+  // Notify user
   const action = isEditing ? t('common.edit') : t('common.add')
   announce(t('contextEditor.variableSaved', { action, name }), 'polite')
 }
@@ -1819,10 +1819,10 @@ const cancelVariableEdit = () => {
   variableEditState.value.show = false
 }
 
-// 变量快捷操作（修改行为：直接在上下文中创建上下文变量）
+// Quick variable operations (modified behavior: create context variables directly in the context)
 const handleCreateVariableAndOpenManager = (name: string) => {
   if (!name) return
-  // 直接在上下文中创建上下文变量，标记为来自缺失变量
+  // Create context variables directly in the context, marked as from a missing variable
   variableEditState.value = {
     show: true,
     isEditing: false,
@@ -1831,13 +1831,13 @@ const handleCreateVariableAndOpenManager = (name: string) => {
     name,
     value: ''
   }
-  // 等待弹窗打开后自动聚焦到变量值输入框
+  // Wait for the pop-up to open and then automatically focus on the variable value input box
   nextTick(() => {
     variableValueInputRef.value?.focus?.()
   })
 }
 
-// 消息聚焦（滚动并高亮）
+// Message focus (scroll and highlight)
 const focusedIndex = ref<number | null>(null)
 const messageRefs = new Map<number, HTMLElement>()
 const setMessageRef = (index: number, el: any) => {
@@ -1851,14 +1851,14 @@ const focusMessage = (index: number) => {
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
-    // 1.5s 后移除高亮
+    // Remove highlight after 1.5s
     setTimeout(() => {
       if (focusedIndex.value === index) focusedIndex.value = null
     }, 1500)
   })
 }
 
-// 生命周期
+// Lifecycle
 watch(() => props.visible, (newVisible) => {
   localVisible.value = newVisible
 })
@@ -1873,18 +1873,18 @@ watch(() => props.showToolManager, (show) => {
   localState.value.showToolManager = show
 })
 
-// 导入导出方法
+// Import/Export methods
 const importFormats = [
-  { id: 'smart', name: '智能识别', description: '自动检测格式并转换' },
-  { id: 'conversation', name: '会话格式', description: '标准的会话消息格式' },
-  { id: 'openai', name: 'OpenAI', description: 'OpenAI API 请求格式' },
-  { id: 'langfuse', name: 'LangFuse', description: 'LangFuse 追踪数据格式' }
+  { id: 'smart', name: 'Smart Recognition', description: 'Automatically detect and convert format' },
+  { id: 'conversation', name: 'Conversation Format', description: 'Standard conversation message format' },
+  { id: 'openai', name: 'OpenAI', description: 'OpenAI API request format' },
+  { id: 'langfuse', name: 'LangFuse', description: 'LangFuse trace data format' }
 ]
 
 const exportFormats = [
-  { id: 'standard', name: '标准格式', description: '内部标准数据格式' },
-  { id: 'openai', name: 'OpenAI', description: 'OpenAI API 兼容格式' },
-  { id: 'template', name: '模板格式', description: '可复用的模板格式' }
+  { id: 'standard', name: 'Standard Format', description: 'Internal standard data format' },
+  { id: 'openai', name: 'OpenAI', description: 'OpenAI API compatible format' },
+  { id: 'template', name: 'Template Format', description: 'Reusable template format' }
 ]
 
 const handleFileUpload = async (event: Event) => {
@@ -1898,7 +1898,7 @@ const handleFileUpload = async (event: Event) => {
     const success = await contextEditor.importFromFile(file)
     
     if (success && contextEditor.currentData.value) {
-      // 将导入的数据同步到本地状态
+      // Sync imported data to local state
       const data = contextEditor.currentData.value
       localState.value.messages = (data.messages || []).map(msg => ({
         role: msg.role || 'user',
@@ -1912,15 +1912,15 @@ const handleFileUpload = async (event: Event) => {
       importData.value = ''
       importError.value = ''
       
-      // 切换到消息编辑标签页
+      // Switch to the message editor tab
       activeTab.value = 'messages'
-      announce('文件导入成功', 'polite')
+      announce('File imported successfully', 'polite')
     } else {
-      importError.value = '文件导入失败，请检查文件格式'
+      importError.value = 'File import failed, please check the file format'
     }
   } catch (err) {
     console.error('File upload error:', err)
-    const errorMsg = err instanceof Error ? err.message : '文件导入失败'
+    const errorMsg = err instanceof Error ? err.message : 'File import failed'
     importError.value = errorMsg
   } finally {
     loading.value = false
@@ -1929,7 +1929,7 @@ const handleFileUpload = async (event: Event) => {
 
 const handleImportSubmit = async () => {
   if (!importData.value.trim()) {
-    importError.value = '请输入要导入的数据'
+    importError.value = 'Please enter the data to import'
     return
   }
 
@@ -1950,7 +1950,7 @@ const handleImportSubmit = async () => {
         result = contextEditor.convertFromLangFuse(jsonData)
         break
       case 'conversation':
-        // 直接设置为对话格式
+        // Set directly as conversation format
         if (Array.isArray(jsonData)) {
           localState.value.messages = jsonData.map(msg => ({
             role: msg.role || 'user',
@@ -1964,7 +1964,7 @@ const handleImportSubmit = async () => {
           localState.value.variables = jsonData.metadata?.variables || jsonData.variables || {}
           localState.value.tools = jsonData.tools || []
         } else {
-          importError.value = '无效的会话格式：必须包含messages数组'
+          importError.value = 'Invalid conversation format: must include a messages array'
           return
         }
         handleStateChange()
@@ -1972,16 +1972,16 @@ const handleImportSubmit = async () => {
         importData.value = ''
         importError.value = ''
         activeTab.value = 'messages'
-        announce('导入成功', 'polite')
+        announce('Import successful', 'polite')
         return
       default:
-        importError.value = '不支持的导入格式'
+        importError.value = 'Unsupported import format'
         return
     }
 
-    // 处理转换结果
+    // Process conversion result
     if (result && result.success && contextEditor.currentData.value) {
-      // 将导入的数据同步到本地状态
+      // Sync imported data to local state
       const data = contextEditor.currentData.value
       localState.value.messages = (data.messages || []).map(msg => ({
         role: msg.role || 'user',
@@ -1995,13 +1995,13 @@ const handleImportSubmit = async () => {
       importData.value = ''
       importError.value = ''
       activeTab.value = 'messages'
-      announce('导入成功', 'polite')
+      announce('Import successful', 'polite')
     } else {
-      importError.value = result?.error || '导入失败：数据转换失败'
+      importError.value = result?.error || 'Import failed: data conversion failed'
     }
   } catch (err) {
     console.error('Import error:', err)
-    const errorMsg = err instanceof Error ? err.message : '数据格式错误，请检查JSON格式'
+    const errorMsg = err instanceof Error ? err.message : 'Data format error, please check the JSON format'
     importError.value = errorMsg
   } finally {
     loading.value = false
@@ -2012,12 +2012,12 @@ const handleExportToFile = () => {
   try {
     loading.value = true
     
-    // 准备导出数据 - 转换为 StandardPromptData 格式
+    // Prepare data for export - convert to StandardPromptData format
     const exportData: any = {
       messages: localState.value.messages.map(msg => ({
         role: msg.role,
         content: msg.content,
-        // 保留其他可能的属性
+        // Keep other possible properties
         ...(msg.name && { name: msg.name }),
         ...(msg.tool_calls && { tool_calls: msg.tool_calls }),
         ...(msg.tool_call_id && { tool_call_id: msg.tool_call_id })
@@ -2031,10 +2031,10 @@ const handleExportToFile = () => {
       }
     }
 
-    // 设置导出数据到contextEditor
+    // Set data for export in contextEditor
     contextEditor.setData(exportData)
     
-    // 执行导出
+    // Execute export
     const success = contextEditor.exportToFile(
       selectedExportFormat.value as any,
       `context-export-${Date.now()}`
@@ -2042,15 +2042,15 @@ const handleExportToFile = () => {
     
     if (success) {
       showExportDialog.value = false
-      announce('导出成功', 'polite')
+      announce('Export successful', 'polite')
     } else {
-      throw new Error('导出操作失败')
+      throw new Error('Export operation failed')
     }
   } catch (err) {
     console.error('Export to file error:', err)
-    const errorMsg = err instanceof Error ? err.message : '导出失败'
-    // TODO: 显示错误提示给用户
-    announce(`导出失败: ${errorMsg}`, 'assertive')
+    const errorMsg = err instanceof Error ? err.message : 'Export failed'
+    // TODO: Display error message to the user
+    announce(`Export failed: ${errorMsg}`, 'assertive')
   } finally {
     loading.value = false
   }
@@ -2060,12 +2060,12 @@ const handleExportToClipboard = async () => {
   try {
     loading.value = true
     
-    // 准备导出数据 - 转换为 StandardPromptData 格式
+    // Prepare data for export - convert to StandardPromptData format
     const exportData: any = {
       messages: localState.value.messages.map(msg => ({
         role: msg.role,
         content: msg.content,
-        // 保留其他可能的属性
+        // Keep other possible properties
         ...(msg.name && { name: msg.name }),
         ...(msg.tool_calls && { tool_calls: msg.tool_calls }),
         ...(msg.tool_call_id && { tool_call_id: msg.tool_call_id })
@@ -2079,23 +2079,23 @@ const handleExportToClipboard = async () => {
       }
     }
 
-    // 设置导出数据到contextEditor
+    // Set data for export in contextEditor
     contextEditor.setData(exportData)
     
-    // 执行导出到剪贴板
+    // Execute export to clipboard
     const success = await contextEditor.exportToClipboard(selectedExportFormat.value as any)
     
     if (success) {
       showExportDialog.value = false
-      announce('已复制到剪贴板', 'polite')
+      announce('Copied to clipboard', 'polite')
     } else {
-      throw new Error('复制到剪贴板失败')
+      throw new Error('Failed to copy to clipboard')
     }
   } catch (err) {
     console.error('Export to clipboard error:', err)
-    const errorMsg = err instanceof Error ? err.message : '导出失败'
-    // TODO: 显示错误提示给用户  
-    announce(`复制失败: ${errorMsg}`, 'assertive')
+    const errorMsg = err instanceof Error ? err.message : 'Export failed'
+    // TODO: Display error message to the user
+    announce(`Copy failed: ${errorMsg}`, 'assertive')
   } finally {
     loading.value = false
   }
@@ -2104,18 +2104,18 @@ const handleExportToClipboard = async () => {
 const getImportPlaceholder = () => {
   switch (selectedImportFormat.value) {
     case 'openai':
-      return 'OpenAI API 请求格式，例如：\n{\n  "messages": [...],\n  "model": "gpt-4"\n}'
+      return 'OpenAI API request format, e.g.:\n{\n  "messages": [...],\n  "model": "gpt-4"\n}'
     case 'langfuse':
-      return 'LangFuse 追踪数据，例如：\n{\n  "input": {\n    "messages": [...]\n  }\n}'
+      return 'LangFuse trace data, e.g.:\n{\n  "input": {\n    "messages": [...]\n  }\n}'
     case 'conversation':
-      return '标准会话格式，例如：\n{\n  "messages": [\n    {"role": "system", "content": "..."},\n    {"role": "user", "content": "..."}\n  ]\n}'
+      return 'Standard conversation format, e.g.:\n{\n  "messages": [\n    {"role": "system", "content": "..."},\n    {"role": "user", "content": "..."}\n  ]\n}'
     case 'smart':
     default:
-      return '粘贴任意支持格式的 JSON 数据，系统将自动识别'
+      return 'Paste JSON data in any supported format, the system will recognize it automatically'
   }
 }
 
-// 复制变量占位符到剪贴板
+// Copy variable placeholder to clipboard
 const copyVariableToClipboard = async (name: string) => {
   try {
     await navigator.clipboard.writeText(`{{${name}}}`)
@@ -2180,7 +2180,7 @@ const copyVariableToClipboard = async (name: string) => {
   transition: box-shadow 0.2s ease;
 }
 
-/* 可访问性支持样式 */
+/* Accessibility support styles */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -2193,7 +2193,7 @@ const copyVariableToClipboard = async (name: string) => {
   border: 0;
 }
 
-/* 减少动画偏好支持 */
+/* Support for reduced motion preference */
 .reduce-motion * {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
@@ -2201,19 +2201,19 @@ const copyVariableToClipboard = async (name: string) => {
   scroll-behavior: auto !important;
 }
 
-/* 高对比度模式支持 */
+/* High contrast mode support */
 .high-contrast {
-  /* 增强对比度的样式将由Naive UI主题系统处理 */
+  /* Styles for enhanced contrast will be handled by the Naive UI theme system */
 }
 
-/* 键盘导航模式高亮 */
+/* Highlight for keyboard navigation mode */
 .keyboard-only *:focus-visible {
   outline: 2px solid var(--n-color-target);
   outline-offset: 2px;
 }
 
-/* 屏幕阅读器模式优化 */
+/* Screen reader mode optimization */
 .screen-reader {
-  /* 为屏幕阅读器优化的样式 */
+  /* Styles optimized for screen readers */
 }
 </style>

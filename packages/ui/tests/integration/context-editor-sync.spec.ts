@@ -1,11 +1,10 @@
-import { describe, it, expect, beforeEach, vi, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, VueWrapper } from '@vue/test-utils'
-import { ref, nextTick, reactive } from 'vue'
-import { createApp } from 'vue'
+import { ref, nextTick } from 'vue'
 import ConversationManager from '../../src/components/ConversationManager.vue'
 import ContextEditor from '../../src/components/ContextEditor.vue'
 
-// Mock Naive UI 组件
+// Mock Naive UI Components
 vi.mock('naive-ui', () => ({
   NCard: {
     name: 'NCard',
@@ -111,42 +110,41 @@ vi.mock('naive-ui', () => ({
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({
     t: (key: string, params?: any) => {
-      // 基础翻译键处理
       const translations: Record<string, any> = {
-        'conversation.management.title': '对话管理',
-        'conversation.messageCount': `${params?.count || 0} 条消息`,
-        'variables.count': `${params?.count || 0} 个变量`,
-        'variables.missing': `缺失 ${params?.count || 0} 个`,
-        'tools.count': `${params?.count || 0} 个工具`,
-        'conversation.noMessages': '暂无消息',
-        'conversation.addFirst': '添加第一条消息',
-        'conversation.addMessage': '添加消息',
-        'common.expand': '展开',
-        'common.collapse': '折叠',
-        'conversation.management.openEditor': '打开编辑器',
-        'common.moveUp': '上移',
-        'common.moveDown': '下移',
-        'common.delete': '删除',
-        'conversation.roles.system': '系统',
-        'conversation.roles.user': '用户',
-        'conversation.roles.assistant': '助手',
-        'conversation.placeholders.system': '输入系统提示...',
-        'conversation.placeholders.user': '输入用户消息...',
-        'conversation.placeholders.assistant': '输入助手回复...',
-        'conversation.clickToCreateVariable': '点击创建变量',
-        'contextEditor.noMessages': '暂无消息',
-        'contextEditor.addFirstMessage': '添加第一条消息',
-        'contextEditor.addMessage': '添加消息',
-        'common.preview': '预览',
-        'common.edit': '编辑',
-        'common.save': '保存',
-        'common.cancel': '取消',
-        'common.import': '导入',
-        'common.export': '导出'
+        'conversation.management.title': 'Conversation Management',
+        'conversation.messageCount': `${params?.count || 0} messages`,
+        'variables.count': `${params?.count || 0} variables`,
+        'variables.missing': `Missing ${params?.count || 0}`,
+        'tools.count': `${params?.count || 0} tools`,
+        'conversation.noMessages': 'No messages',
+        'conversation.addFirst': 'Add first message',
+        'conversation.addMessage': 'Add message',
+        'common.expand': 'Expand',
+        'common.collapse': 'Collapse',
+        'conversation.management.openEditor': 'Open Editor',
+        'common.moveUp': 'Move Up',
+        'common.moveDown': 'Move Down',
+        'common.delete': 'Delete',
+        'conversation.roles.system': 'System',
+        'conversation.roles.user': 'User',
+        'conversation.roles.assistant': 'Assistant',
+        'conversation.placeholders.system': 'Enter system prompt...',
+        'conversation.placeholders.user': 'Enter user message...',
+        'conversation.placeholders.assistant': 'Enter assistant reply...',
+        'conversation.clickToCreateVariable': 'Click to create variable',
+        'contextEditor.noMessages': 'No messages',
+        'contextEditor.addFirstMessage': 'Add first message',
+        'contextEditor.addMessage': 'Add message',
+        'common.preview': 'Preview',
+        'common.edit': 'Edit',
+        'common.save': 'Save',
+        'common.cancel': 'Cancel',
+        'common.import': 'Import',
+        'common.export': 'Export'
       }
       return translations[key] || key
     },
-    locale: { value: 'zh-CN' }
+    locale: { value: 'en-US' }
   })
 }))
 
@@ -172,9 +170,7 @@ vi.mock('../../src/composables/useDebounceThrottle', () => ({
     debounce: (fn: Function) => fn,
     throttle: (fn: Function) => fn,
     batchExecute: (fn: Function) => {
-      // 正确模拟批处理函数：接收一个处理数组的函数，返回一个接收单个项目的函数
       return (item: any) => {
-        // 在测试中立即执行，传入包含单个项目的数组
         fn([item])
       }
     }
@@ -230,7 +226,7 @@ vi.mock('../../src/data/quickTemplates', () => ({
 }))
 
 /**
- * 测试父组件，用于模拟真实的数据同步场景
+ * Test parent component to simulate real data synchronization scenarios
  */
 const TestParentComponent = {
   name: 'TestParentComponent',
@@ -245,35 +241,35 @@ const TestParentComponent = {
     }
   },
   setup(props: any, { emit }: any) {
-    // 共享的响应式状态
+    // Shared reactive state
     const messages = ref([...props.initialMessages])
     const variables = ref({ ...props.initialVariables })
     const showContextEditor = ref(false)
     
-    // 模拟变量扫描函数
+    // Mock variable scanning function
     const scanVariables = (content: string): string[] => {
       if (!content) return []
       const matches = content.match(/\{\{([^}]+)\}\}/g) || []
       return matches.map(match => match.slice(2, -2))
     }
     
-    // 模拟变量替换函数
+    // Mock variable replacement function
     const replaceVariables = (content: string, vars?: Record<string, string>): string => {
       if (!content || !vars) return content
       let result = content
       Object.entries(vars).forEach(([key, value]) => {
-        result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value)
+        result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value as string)
       })
       return result
     }
     
-    // 处理 ConversationManager 的消息更新
+    // Handle message updates from ConversationManager
     const handleMessagesUpdate = (newMessages: any[]) => {
       messages.value = [...newMessages]
       emit('messagesChanged', messages.value)
     }
     
-    // 处理 ContextEditor 的状态更新
+    // Handle state updates from ContextEditor
     const handleContextEditorStateUpdate = (newState: any) => {
       if (newState.messages) {
         messages.value = [...newState.messages]
@@ -284,19 +280,19 @@ const TestParentComponent = {
       emit('contextChanged', { messages: messages.value, variables: variables.value })
     }
     
-    // 处理上下文变更事件
+    // Handle context change event
     const handleContextChange = (newMessages: any[], newVariables: Record<string, string>) => {
       messages.value = [...newMessages]
       variables.value = { ...newVariables }
       emit('contextChanged', { messages: messages.value, variables: variables.value })
     }
     
-    // 打开编辑器
+    // Open editor
     const handleOpenContextEditor = () => {
       showContextEditor.value = true
     }
     
-    // 关闭编辑器
+    // Close editor
     const handleCloseContextEditor = () => {
       showContextEditor.value = false
     }
@@ -345,11 +341,10 @@ const TestParentComponent = {
   }
 }
 
-describe('ConversationManager 和 ContextEditor 数据同步集成测试', () => {
+describe('Integration Test for Data Sync between ConversationManager and ContextEditor', () => {
   let wrapper: VueWrapper<any>
   
   beforeEach(() => {
-    // 清理 mock
     vi.clearAllMocks()
     if (wrapper) {
       wrapper.unmount()
@@ -376,10 +371,10 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
     return wrapper
   }
   
-  describe('基础数据同步机制', () => {
-    it('应该正确初始化共享数据状态', async () => {
+  describe('Basic Data Sync Mechanism', () => {
+    it('should correctly initialize shared data state', async () => {
       const initialMessages = [
-        { role: 'user', content: '测试消息 {{testVar}}' }
+        { role: 'user', content: 'Test message {{testVar}}' }
       ]
       const initialVariables = { testVar: 'value1' }
       
@@ -388,71 +383,71 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
         initialVariables
       })
       
-      // 验证 ConversationManager 接收到正确数据
+      // Verify ConversationManager receives correct data
       const manager = wrapper.findComponent({ name: 'ConversationManager' })
       expect(manager.props('messages')).toEqual(initialMessages)
       expect(manager.props('availableVariables')).toEqual(initialVariables)
       
-      // 验证父组件状态正确初始化
+      // Verify parent component state is correctly initialized
       expect(wrapper.vm.messages).toEqual(initialMessages)
       expect(wrapper.vm.variables).toEqual(initialVariables)
     })
     
-    it('应该在 ConversationManager 和 ContextEditor 之间共享同一数据源', async () => {
+    it('should share the same data source between ConversationManager and ContextEditor', async () => {
       const initialMessages = [
-        { role: 'system', content: '系统提示' },
-        { role: 'user', content: '用户消息' }
+        { role: 'system', content: 'System prompt' },
+        { role: 'user', content: 'User message' }
       ]
       
       wrapper = await createIntegratedWrapper({
         initialMessages
       })
       
-      // 打开 ContextEditor
+      // Open ContextEditor
       wrapper.vm.handleOpenContextEditor()
       await nextTick()
       
-      // 验证 ContextEditor 接收到相同的数据
+      // Verify ContextEditor receives the same data
       const editor = wrapper.findComponent({ name: 'ContextEditor' })
       expect(editor.props('state').messages).toEqual(initialMessages)
       
-      // 验证两个组件引用同一数据源
-      expect(wrapper.vm.messages).toBe(wrapper.vm.messages) // 引用相等
+      // Verify both components reference the same data source
+      expect(wrapper.vm.messages).toBe(wrapper.vm.messages) // Reference equality
     })
   })
   
-  describe('ConversationManager → ContextEditor 数据同步', () => {
-    it('在 ConversationManager 修改消息时，ContextEditor 应该实时反映变化', async () => {
+  describe('Data Sync: ConversationManager → ContextEditor', () => {
+    it('should reflect changes in ContextEditor in real-time when a message is modified in ConversationManager', async () => {
       wrapper = await createIntegratedWrapper({
         initialMessages: [
-          { role: 'user', content: '原始消息' }
+          { role: 'user', content: 'Original message' }
         ]
       })
       
-      // 打开 ContextEditor
+      // Open ContextEditor
       wrapper.vm.handleOpenContextEditor()
       await nextTick()
       
       const manager = wrapper.findComponent({ name: 'ConversationManager' })
       const editor = wrapper.findComponent({ name: 'ContextEditor' })
       
-      // 在 ConversationManager 中修改消息
+      // Modify message in ConversationManager
       const newMessages = [
-        { role: 'user', content: '修改后的消息' }
+        { role: 'user', content: 'Modified message' }
       ]
       
       await manager.vm.$emit('update:messages', newMessages)
       await nextTick()
       
-      // 验证 ContextEditor 实时反映变化
-      expect(wrapper.vm.messages[0].content).toBe('修改后的消息')
-      expect(editor.props('state').messages[0].content).toBe('修改后的消息')
+      // Verify ContextEditor reflects the change in real-time
+      expect(wrapper.vm.messages[0].content).toBe('Modified message')
+      expect(editor.props('state').messages[0].content).toBe('Modified message')
     })
     
-    it('在 ConversationManager 添加消息时，ContextEditor 应该立即显示新消息', async () => {
+    it('should immediately show the new message in ContextEditor when a message is added in ConversationManager', async () => {
       wrapper = await createIntegratedWrapper({
         initialMessages: [
-          { role: 'user', content: '第一条消息' }
+          { role: 'user', content: 'First message' }
         ]
       })
       
@@ -462,26 +457,26 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
       const manager = wrapper.findComponent({ name: 'ConversationManager' })
       const editor = wrapper.findComponent({ name: 'ContextEditor' })
       
-      // 在 ConversationManager 中添加消息
+      // Add message in ConversationManager
       const newMessages = [
-        { role: 'user', content: '第一条消息' },
-        { role: 'assistant', content: '第二条消息' }
+        { role: 'user', content: 'First message' },
+        { role: 'assistant', content: 'Second message' }
       ]
       
       await manager.vm.$emit('update:messages', newMessages)
       await nextTick()
       
-      // 验证 ContextEditor 显示新消息
+      // Verify ContextEditor shows the new message
       expect(wrapper.vm.messages).toHaveLength(2)
-      expect(wrapper.vm.messages[1].content).toBe('第二条消息')
+      expect(wrapper.vm.messages[1].content).toBe('Second message')
       expect(editor.props('state').messages).toHaveLength(2)
     })
     
-    it('在 ConversationManager 删除消息时，ContextEditor 应该同步删除', async () => {
+    it('should sync deletion in ContextEditor when a message is deleted in ConversationManager', async () => {
       wrapper = await createIntegratedWrapper({
         initialMessages: [
-          { role: 'user', content: '消息1' },
-          { role: 'assistant', content: '消息2' }
+          { role: 'user', content: 'Message 1' },
+          { role: 'assistant', content: 'Message 2' }
         ]
       })
       
@@ -490,25 +485,25 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
       
       const manager = wrapper.findComponent({ name: 'ConversationManager' })
       
-      // 删除第一条消息
+      // Delete the first message
       const newMessages = [
-        { role: 'assistant', content: '消息2' }
+        { role: 'assistant', content: 'Message 2' }
       ]
       
       await manager.vm.$emit('update:messages', newMessages)
       await nextTick()
       
-      // 验证两个组件都反映删除操作
+      // Verify both components reflect the deletion
       expect(wrapper.vm.messages).toHaveLength(1)
-      expect(wrapper.vm.messages[0].content).toBe('消息2')
+      expect(wrapper.vm.messages[0].content).toBe('Message 2')
     })
   })
   
-  describe('ContextEditor → ConversationManager 数据同步', () => {
-    it('在 ContextEditor 修改消息时，ConversationManager 应该实时反映变化', async () => {
+  describe('Data Sync: ContextEditor → ConversationManager', () => {
+    it('should reflect changes in ConversationManager in real-time when a message is modified in ContextEditor', async () => {
       wrapper = await createIntegratedWrapper({
         initialMessages: [
-          { role: 'user', content: '原始内容' }
+          { role: 'user', content: 'Original content' }
         ]
       })
       
@@ -517,9 +512,9 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
       
       const editor = wrapper.findComponent({ name: 'ContextEditor' })
       
-      // 模拟在 ContextEditor 中修改状态
+      // Simulate modifying state in ContextEditor
       const newState = {
-        messages: [{ role: 'user', content: '在编辑器中修改的内容' }],
+        messages: [{ role: 'user', content: 'Content modified in editor' }],
         variables: {},
         tools: [],
         showVariablePreview: true,
@@ -530,17 +525,17 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
       await editor.vm.$emit('update:state', newState)
       await nextTick()
       
-      // 验证 ConversationManager 实时反映变化
-      expect(wrapper.vm.messages[0].content).toBe('在编辑器中修改的内容')
+      // Verify ConversationManager reflects the change in real-time
+      expect(wrapper.vm.messages[0].content).toBe('Content modified in editor')
       
       const manager = wrapper.findComponent({ name: 'ConversationManager' })
-      expect(manager.props('messages')[0].content).toBe('在编辑器中修改的内容')
+      expect(manager.props('messages')[0].content).toBe('Content modified in editor')
     })
     
-    it('在 ContextEditor 通过 contextChange 事件修改数据时，ConversationManager 应该同步', async () => {
+    it('should sync ConversationManager when data is modified via contextChange event in ContextEditor', async () => {
       wrapper = await createIntegratedWrapper({
         initialMessages: [
-          { role: 'system', content: '系统消息' }
+          { role: 'system', content: 'System message' }
         ],
         initialVariables: { oldVar: 'oldValue' }
       })
@@ -550,31 +545,31 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
       
       const editor = wrapper.findComponent({ name: 'ContextEditor' })
       
-      // 模拟 contextChange 事件
+      // Simulate contextChange event
       const newMessages = [
-        { role: 'system', content: '更新的系统消息' },
-        { role: 'user', content: '新增的用户消息 {{newVar}}' }
+        { role: 'system', content: 'Updated system message' },
+        { role: 'user', content: 'New user message {{newVar}}' }
       ]
       const newVariables = { newVar: 'newValue' }
       
       await editor.vm.$emit('contextChange', newMessages, newVariables)
       await nextTick()
       
-      // 验证父组件状态更新
+      // Verify parent component state update
       expect(wrapper.vm.messages).toHaveLength(2)
-      expect(wrapper.vm.messages[0].content).toBe('更新的系统消息')
-      expect(wrapper.vm.messages[1].content).toBe('新增的用户消息 {{newVar}}')
+      expect(wrapper.vm.messages[0].content).toBe('Updated system message')
+      expect(wrapper.vm.messages[1].content).toBe('New user message {{newVar}}')
       expect(wrapper.vm.variables).toEqual({ newVar: 'newValue' })
       
-      // 验证 ConversationManager 接收到新数据
+      // Verify ConversationManager receives new data
       const manager = wrapper.findComponent({ name: 'ConversationManager' })
       expect(manager.props('messages')).toEqual(newMessages)
       expect(manager.props('availableVariables')).toEqual(newVariables)
     })
   })
   
-  describe('模板应用对数据同步的影响', () => {
-    it('在 ContextEditor 中应用模板时，ConversationManager 应该实时反映模板内容', async () => {
+  describe('Impact of Template Application on Data Sync', () => {
+    it('should reflect template content in ConversationManager in real-time when a template is applied in ContextEditor', async () => {
       wrapper = await createIntegratedWrapper()
       
       wrapper.vm.handleOpenContextEditor()
@@ -582,7 +577,7 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
       
       const editor = wrapper.findComponent({ name: 'ContextEditor' })
       
-      // 模拟应用模板（通过 contextChange 事件）
+      // Simulate applying a template (via contextChange event)
       const templateMessages = [
         { role: 'system', content: 'You are a helpful assistant specialized in {{domain}}.' },
         { role: 'user', content: '{{userQuery}}' }
@@ -592,7 +587,7 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
       await editor.vm.$emit('contextChange', templateMessages, templateVariables)
       await nextTick()
       
-      // 验证 ConversationManager 显示模板内容
+      // Verify ConversationManager displays template content
       expect(wrapper.vm.messages).toEqual(templateMessages)
       expect(wrapper.vm.variables).toEqual(templateVariables)
       
@@ -602,10 +597,10 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
     })
   })
   
-  describe('导入导出对数据同步的影响', () => {
-    it('在 ContextEditor 中导入数据时，ConversationManager 应该实时更新', async () => {
+  describe('Impact of Import/Export on Data Sync', () => {
+    it('should update ConversationManager in real-time when data is imported in ContextEditor', async () => {
       wrapper = await createIntegratedWrapper({
-        initialMessages: [{ role: 'user', content: '旧数据' }]
+        initialMessages: [{ role: 'user', content: 'Old data' }]
       })
       
       wrapper.vm.handleOpenContextEditor()
@@ -613,17 +608,17 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
       
       const editor = wrapper.findComponent({ name: 'ContextEditor' })
       
-      // 模拟导入操作（通过 contextChange 事件）
+      // Simulate import operation (via contextChange event)
       const importedMessages = [
-        { role: 'system', content: '导入的系统消息' },
-        { role: 'user', content: '导入的用户消息 {{importedVar}}' }
+        { role: 'system', content: 'Imported system message' },
+        { role: 'user', content: 'Imported user message {{importedVar}}' }
       ]
-      const importedVariables = { importedVar: '导入的变量值' }
+      const importedVariables = { importedVar: 'imported value' }
       
       await editor.vm.$emit('contextChange', importedMessages, importedVariables)
       await nextTick()
       
-      // 验证数据同步
+      // Verify data sync
       expect(wrapper.vm.messages).toEqual(importedMessages)
       expect(wrapper.vm.variables).toEqual(importedVariables)
       
@@ -632,22 +627,22 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
       expect(manager.props('availableVariables')).toEqual(importedVariables)
     })
     
-    it('导入的数据应该立即在两个组件中可用', async () => {
+    it('should make imported data immediately available in both components', async () => {
       wrapper = await createIntegratedWrapper()
       
       wrapper.vm.handleOpenContextEditor()
       await nextTick()
       
-      // 模拟复杂的导入数据
+      // Simulate complex imported data
       const complexImportedData = {
         messages: [
-          { role: 'system', content: '复杂系统提示：处理 {{taskType}} 任务' },
-          { role: 'user', content: '用户问题：{{question}}' },
-          { role: 'assistant', content: '助手回复模板' }
+          { role: 'system', content: 'Complex system prompt: process {{taskType}} task' },
+          { role: 'user', content: 'User question: {{question}}' },
+          { role: 'assistant', content: 'Assistant reply template' }
         ],
         variables: {
-          taskType: '数据分析',
-          question: '如何优化性能？'
+          taskType: 'Data Analysis',
+          question: 'How to optimize performance?'
         }
       }
       
@@ -655,34 +650,22 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
       await editor.vm.$emit('contextChange', complexImportedData.messages, complexImportedData.variables)
       await nextTick()
       
-      // 验证复杂数据的同步
+      // Verify sync of complex data
       expect(wrapper.vm.messages).toHaveLength(3)
       expect(wrapper.vm.messages[0].content).toContain('{{taskType}}')
-      expect(wrapper.vm.variables.taskType).toBe('数据分析')
+      expect(wrapper.vm.variables.taskType).toBe('Data Analysis')
       
-      // 验证 ConversationManager 的变量扫描功能
+      // Verify ConversationManager's variable scanning functionality
       const detectedVars = wrapper.vm.scanVariables(wrapper.vm.messages[0].content)
       expect(detectedVars).toContain('taskType')
     })
   })
   
-  describe('完整的 "编辑即emit → 父级更新 → 实时反映" 链路验证', () => {
-    it('应该验证完整的数据流链路', async () => {
-      const eventsEmitted: any[] = []
-      
+  describe('Full "Edit → Emit → Parent Update → Real-time Reflection" Link Validation', () => {
+    it('should validate the complete data flow link', async () => {
       wrapper = await createIntegratedWrapper({
-        initialMessages: [{ role: 'user', content: '测试消息' }]
+        initialMessages: [{ role: 'user', content: 'Test message' }]
       })
-      
-      // 用onMounted来监听组件事件（替代Vue 3中移除的$on）
-      const handleMessagesChanged = (messages: any) => {
-        eventsEmitted.push({ type: 'messagesChanged', data: messages })
-      }
-      const handleContextChanged = (context: any) => {
-        eventsEmitted.push({ type: 'contextChanged', data: context })
-      }
-      
-      // 模拟事件监听（通过直接验证组件状态变化替代事件监听）
       
       wrapper.vm.handleOpenContextEditor()
       await nextTick()
@@ -690,32 +673,32 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
       const manager = wrapper.findComponent({ name: 'ConversationManager' })
       const editor = wrapper.findComponent({ name: 'ContextEditor' })
       
-      // 第1步：ConversationManager 编辑 → emit
-      const newMessages1 = [{ role: 'user', content: '第1步修改' }]
+      // Step 1: ConversationManager edit → emit
+      const newMessages1 = [{ role: 'user', content: 'Step 1 modification' }]
       await manager.vm.$emit('update:messages', newMessages1)
       await nextTick()
       
-      // 验证链路：编辑 → emit → 父级更新 → ContextEditor 反映
-      expect(wrapper.vm.messages[0].content).toBe('第1步修改')
-      expect(editor.props('state').messages[0].content).toBe('第1步修改')
+      // Verify link: Edit → Emit → Parent Update → ContextEditor reflects
+      expect(wrapper.vm.messages[0].content).toBe('Step 1 modification')
+      expect(editor.props('state').messages[0].content).toBe('Step 1 modification')
       
-      // 第2步：ContextEditor 编辑 → emit
-      const newMessages2 = [{ role: 'user', content: '第2步修改' }]
+      // Step 2: ContextEditor edit → emit
+      const newMessages2 = [{ role: 'user', content: 'Step 2 modification' }]
       await editor.vm.$emit('contextChange', newMessages2, {})
       await nextTick()
       
-      // 验证链路：编辑 → emit → 父级更新 → ConversationManager 反映
-      expect(wrapper.vm.messages[0].content).toBe('第2步修改')
-      expect(manager.props('messages')[0].content).toBe('第2步修改')
+      // Verify link: Edit → Emit → Parent Update → ConversationManager reflects
+      expect(wrapper.vm.messages[0].content).toBe('Step 2 modification')
+      expect(manager.props('messages')[0].content).toBe('Step 2 modification')
       
-      // 验证事件发射（通过emitted()检查）
+      // Verify event emission (by checking with emitted())
       expect(manager.emitted('update:messages')).toBeTruthy()
       expect(editor.emitted('contextChange')).toBeTruthy()
     })
     
-    it('应该确保数据一致性不会出现竞态条件', async () => {
+    it('should ensure data consistency and prevent race conditions', async () => {
       wrapper = await createIntegratedWrapper({
-        initialMessages: [{ role: 'user', content: '初始消息' }]
+        initialMessages: [{ role: 'user', content: 'Initial message' }]
       })
       
       wrapper.vm.handleOpenContextEditor()
@@ -724,14 +707,14 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
       const manager = wrapper.findComponent({ name: 'ConversationManager' })
       const editor = wrapper.findComponent({ name: 'ContextEditor' })
       
-      // 快速连续的修改操作
+      // Rapid sequential modification operations
       const operations = [
-        { source: 'manager', content: '快速修改1' },
-        { source: 'editor', content: '快速修改2' },
-        { source: 'manager', content: '快速修改3' }
+        { source: 'manager', content: 'Quick mod 1' },
+        { source: 'editor', content: 'Quick mod 2' },
+        { source: 'manager', content: 'Quick mod 3' }
       ]
       
-      // 模拟快速连续操作
+      // Simulate rapid sequential operations
       for (const op of operations) {
         if (op.source === 'manager') {
           await manager.vm.$emit('update:messages', [{ role: 'user', content: op.content }])
@@ -741,15 +724,15 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
         await nextTick()
       }
       
-      // 验证最终状态一致
-      expect(wrapper.vm.messages[0].content).toBe('快速修改3')
-      expect(manager.props('messages')[0].content).toBe('快速修改3')
-      expect(editor.props('state').messages[0].content).toBe('快速修改3')
+      // Verify final state is consistent
+      expect(wrapper.vm.messages[0].content).toBe('Quick mod 3')
+      expect(manager.props('messages')[0].content).toBe('Quick mod 3')
+      expect(editor.props('state').messages[0].content).toBe('Quick mod 3')
     })
   })
   
-  describe('变量同步特性', () => {
-    it('变量更新应该在两个组件中同步反映', async () => {
+  describe('Variable Sync Feature', () => {
+    it('should sync variable updates across both components', async () => {
       wrapper = await createIntegratedWrapper({
         initialMessages: [{ role: 'user', content: 'Hello {{name}}!' }],
         initialVariables: { name: 'World' }
@@ -760,18 +743,18 @@ describe('ConversationManager 和 ContextEditor 数据同步集成测试', () =>
       
       const editor = wrapper.findComponent({ name: 'ContextEditor' })
       
-      // 更新变量
+      // Update variables
       const newVariables = { name: 'Vue', greeting: 'Hi' }
       await editor.vm.$emit('contextChange', wrapper.vm.messages, newVariables)
       await nextTick()
       
-      // 验证变量同步
+      // Verify variable sync
       expect(wrapper.vm.variables).toEqual(newVariables)
       
       const manager = wrapper.findComponent({ name: 'ConversationManager' })
       expect(manager.props('availableVariables')).toEqual(newVariables)
       
-      // 验证变量替换功能
+      // Verify variable replacement functionality
       const replacedContent = wrapper.vm.replaceVariables('Hello {{name}}!', wrapper.vm.variables)
       expect(replacedContent).toBe('Hello Vue!')
     })

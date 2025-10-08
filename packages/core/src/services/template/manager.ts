@@ -10,7 +10,7 @@ import { ImportExportError } from '../../interfaces/import-export';
 
 
 /**
- * 提示词管理器实现
+ * Template Manager Implementation
  */
 export class TemplateManager implements ITemplateManager {
   private readonly staticLoader: StaticLoader;
@@ -266,7 +266,7 @@ export class TemplateManager implements ITemplateManager {
       case 'zh-CN':
         return this.staticLoader.getDefaultTemplates();
       default:
-        console.warn(`Unsupported language: ${language}, falling back to Chinese templates`);
+        console.warn(`Unsupported language: ${language}, falling back to default templates`);
         return this.staticLoader.getDefaultTemplates();
     }
   }
@@ -307,15 +307,15 @@ export class TemplateManager implements ITemplateManager {
     return await this.languageService.getSupportedLanguages();
   }
 
-  // 实现 IImportExportable 接口
+  // Implementing the IImportExportable interface
 
   /**
-   * 导出所有用户模板
+   * Export all user templates
    */
   async exportData(): Promise<Template[]> {
     try {
       const allTemplates = await this.listTemplates();
-      // 只导出用户模板，不导出内置模板
+      // Export only user templates, not built-in templates
       return allTemplates.filter(template => !template.isBuiltin);
     } catch (error) {
       throw new ImportExportError(
@@ -327,17 +327,17 @@ export class TemplateManager implements ITemplateManager {
   }
 
   /**
-   * 导入用户模板
+   * Import user templates
    */
   async importData(data: any): Promise<void> {
-    // 基本格式验证：必须是数组
+    // Basic format validation: must be an array
     if (!Array.isArray(data)) {
       throw new Error('Invalid template data format: data must be an array of template objects');
     }
 
     const templates = data as Template[];
 
-    // Get existing user templates to clean up (替换模式)
+    // Get existing user templates to clean up (replacement mode)
     const existingTemplates = await this.listTemplates();
     const userTemplateIds = existingTemplates
       .filter(template => !template.isBuiltin)
@@ -357,28 +357,28 @@ export class TemplateManager implements ITemplateManager {
     // Import each template individually, capturing failures
     for (const template of templates) {
       try {
-        // 使用 validateData 验证单个模板
+        // Use validateData to validate a single template
         if (!this.validateSingleTemplate(template)) {
           console.warn(`Skipping invalid template configuration:`, template);
           failedTemplates.push({ template, error: new Error('Invalid template configuration') });
           continue;
         }
 
-        // 检查是否与内置模板ID冲突
+        // Check for conflicts with built-in template IDs
         const builtinTemplate = existingTemplates.find(t => t.id === template.id && t.isBuiltin);
         let finalTemplateId = template.id;
         let finalTemplateName = template.name;
 
         if (builtinTemplate) {
-          // 为冲突的模板生成新的ID和名称
+          // Generate new ID and name for conflicting templates
           const timestamp = Date.now();
           const random = Math.random().toString(36).substr(2, 6);
           finalTemplateId = `user-${template.id}-${timestamp}-${random}`;
-          finalTemplateName = `${template.name} (导入副本)`;
+          finalTemplateName = `${template.name} (Imported Copy)`;
           console.warn(`Detected conflict with built-in template ID: ${template.id}, renamed to: ${finalTemplateId}`);
         }
 
-        // 确保导入的模板标记为用户模板，并为缺失字段提供默认值
+        // Ensure imported templates are marked as user templates and provide default values for missing fields
         const userTemplate: Template = {
           ...template,
           id: finalTemplateId,
@@ -386,11 +386,11 @@ export class TemplateManager implements ITemplateManager {
           isBuiltin: false,
           metadata: {
             version: template.metadata?.version || '1.0.0',
-            lastModified: Date.now(), // 更新为当前时间
-            templateType: template.metadata?.templateType || 'optimize', // 为旧版本数据提供默认类型
-            author: template.metadata?.author || 'User', // 导入的模板标记为用户创建
+            lastModified: Date.now(), // Update to current time
+            templateType: template.metadata?.templateType || 'optimize', // Provide default type for older data
+            author: template.metadata?.author || 'User', // Imported templates are marked as user-created
             ...(template.metadata?.description && { description: template.metadata.description }),
-            ...(template.metadata?.language && { language: template.metadata.language }) // 只在原本有language字段时才保留
+            ...(template.metadata?.language && { language: template.metadata.language }) // Only keep the language field if it originally existed
           }
         };
 
@@ -404,19 +404,19 @@ export class TemplateManager implements ITemplateManager {
 
     if (failedTemplates.length > 0) {
       console.warn(`Failed to import ${failedTemplates.length} templates`);
-      // 不抛出错误，允许部分成功的导入
+      // Do not throw an error, allow partially successful imports
     }
   }
 
   /**
-   * 获取数据类型标识
+   * Get data type identifier
    */
   async getDataType(): Promise<string> {
     return 'userTemplates';
   }
 
   /**
-   * 验证模板数据格式
+   * Validate template data format
    */
   async validateData(data: any): Promise<boolean> {
     if (!Array.isArray(data)) {
@@ -427,7 +427,7 @@ export class TemplateManager implements ITemplateManager {
   }
 
   /**
-   * 验证单个模板配置
+   * Validate single template configuration
    */
   private validateSingleTemplate(item: any): boolean {
     return typeof item === 'object' &&
@@ -442,10 +442,10 @@ export class TemplateManager implements ITemplateManager {
 }
 
 /**
- * 创建模板管理器的工厂函数
- * @param storageProvider 存储提供器实例
- * @param languageService 模板语言服务实例
- * @returns 模板管理器实例
+ * Factory function to create a template manager
+ * @param storageProvider The storage provider instance
+ * @param languageService The template language service instance
+ * @returns A template manager instance
  */
 export function createTemplateManager(
   storageProvider: IStorageProvider,

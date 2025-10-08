@@ -3,9 +3,8 @@ import { mount, VueWrapper } from '@vue/test-utils'
 import { ref, nextTick } from 'vue'
 import ContextEditor from '../../src/components/ContextEditor.vue'
 import { createContextRepo, MemoryStorageProvider } from '@prompt-optimizer/core'
-import type { ContextRepo } from '@prompt-optimizer/core'
 
-// Mock Naive UI 组件
+// Mock Naive UI Components
 vi.mock('naive-ui', () => ({
   NModal: {
     name: 'NModal',
@@ -105,28 +104,28 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({
     t: (key: string, params?: any) => {
       const translations: Record<string, any> = {
-        'contextEditor.noMessages': '暂无消息',
-        'contextEditor.addFirstMessage': '添加第一条消息',
-        'contextEditor.addMessage': '添加消息',
-        'contextEditor.noVariables': '暂无变量',
-        'contextEditor.addFirstVariable': '添加第一个变量覆盖',
-        'contextEditor.addVariable': '添加变量',
-        'contextEditor.variableOverrides': '上下文变量覆盖',
-        'contextEditor.globalVariables': `全局: ${params?.count || 0}`,
-        'contextEditor.overrideCount': `${params?.count || 0} 个覆盖`,
-        'contextEditor.missingVariableHint': '点击缺失变量进入编辑模式',
-        'conversation.clickToCreateVariable': '点击创建变量',
-        'common.edit': '编辑',
-        'common.preview': '预览',
-        'common.save': '保存',
-        'common.cancel': '取消',
-        'common.delete': '删除',
-        'common.moveUp': '上移',
-        'common.moveDown': '下移'
+        'contextEditor.noMessages': 'No messages',
+        'contextEditor.addFirstMessage': 'Add first message',
+        'contextEditor.addMessage': 'Add message',
+        'contextEditor.noVariables': 'No variables',
+        'contextEditor.addFirstVariable': 'Add first variable override',
+        'contextEditor.addVariable': 'Add variable',
+        'contextEditor.variableOverrides': 'Context Variable Overrides',
+        'contextEditor.globalVariables': `Global: ${params?.count || 0}`,
+        'contextEditor.overrideCount': `${params?.count || 0} overrides`,
+        'contextEditor.missingVariableHint': 'Click missing variable to enter edit mode',
+        'conversation.clickToCreateVariable': 'Click to create variable',
+        'common.edit': 'Edit',
+        'common.preview': 'Preview',
+        'common.save': 'Save',
+        'common.cancel': 'Cancel',
+        'common.delete': 'Delete',
+        'common.moveUp': 'Move Up',
+        'common.moveDown': 'Move Down'
       }
       return translations[key] || key
     },
-    locale: { value: 'zh-CN' }
+    locale: { value: 'en-US' }
   })
 }))
 
@@ -155,7 +154,7 @@ vi.mock('../../src/composables/useAccessibility', () => ({
     accessibilityClasses: { value: {} },
     isAccessibilityMode: { value: false },
     liveRegionMessage: { value: '' },
-    announcements: { value: [] } // 添加缺失的 announcements 属性
+    announcements: { value: [] }
   })
 }))
 
@@ -193,7 +192,7 @@ vi.mock('../../src/data/quickTemplates', () => ({
 }))
 
 /**
- * 测试组件包装器，集成ContextRepo进行持久化测试
+ * Test component wrapper to integrate ContextRepo for persistence testing
  */
 const TestContextEditorWithPersistence = {
   name: 'TestContextEditorWithPersistence',
@@ -216,38 +215,38 @@ const TestContextEditorWithPersistence = {
     const contextRepo = createContextRepo(storage)
     const currentContextId = ref<string | null>(null)
     
-    // 模拟变量扫描函数
+    // Mock variable scanning function
     const scanVariables = (content: string): string[] => {
       if (!content) return []
       const matches = content.match(/\{\{([^}]+)\}\}/g) || []
       return matches.map(match => match.slice(2, -2))
     }
     
-    // 模拟变量替换函数
+    // Mock variable replacement function
     const replaceVariables = (content: string, vars?: Record<string, string>): string => {
       if (!content) return content
       const allVars = { ...vars }
       let result = content
       Object.entries(allVars).forEach(([key, value]) => {
-        result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value)
+        result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value as string)
       })
       return result
     }
     
-    // 检查是否为预定义变量
+    // Check if a variable is predefined
     const isPredefinedVariable = (name: string): boolean => {
       const predefined = ['originalPrompt', 'currentPrompt', 'userQuestion', 'conversationContext', 'iterateInput', 'lastOptimizedPrompt', 'toolsContext']
       return predefined.includes(name)
     }
     
-    // 处理状态更新并持久化
+    // Handle state updates and persist them
     const handleStateUpdate = async (newState: any) => {
       if (!currentContextId.value) {
-        // 创建新上下文
-        currentContextId.value = await contextRepo.create({ title: '测试上下文' })
+        // Create a new context
+        currentContextId.value = await contextRepo.create({ title: 'Test Context' })
       }
       
-      // 持久化到ContextRepo
+      // Persist to ContextRepo
       await contextRepo.update(currentContextId.value, {
         messages: newState.messages || [],
         variables: newState.variables || {}
@@ -256,10 +255,10 @@ const TestContextEditorWithPersistence = {
       emit('stateChanged', newState)
     }
     
-    // 处理上下文变更
+    // Handle context changes
     const handleContextChange = async (messages: any[], variables: Record<string, string>) => {
       if (!currentContextId.value) {
-        currentContextId.value = await contextRepo.create({ title: '测试上下文' })
+        currentContextId.value = await contextRepo.create({ title: 'Test Context' })
       }
       
       await contextRepo.update(currentContextId.value, {
@@ -270,7 +269,7 @@ const TestContextEditorWithPersistence = {
       emit('contextChanged', { messages, variables })
     }
     
-    // 模拟刷新后的数据恢复
+    // Simulate data restoration after a refresh
     const simulateRefresh = async () => {
       if (currentContextId.value) {
         const contextData = await contextRepo.get(currentContextId.value)
@@ -315,7 +314,7 @@ const TestContextEditorWithPersistence = {
   }
 }
 
-describe('ContextEditor 持久化集成测试', () => {
+describe('ContextEditor Persistence Integration Test', () => {
   let wrapper: VueWrapper<any>
   
   beforeEach(() => {
@@ -345,7 +344,7 @@ describe('ContextEditor 持久化集成测试', () => {
       global: {
         stubs: {},
         mocks: {
-          announcements: []  // 在全局添加mock
+          announcements: []
         }
       }
     })
@@ -354,40 +353,40 @@ describe('ContextEditor 持久化集成测试', () => {
     return wrapper
   }
 
-  describe('核心持久化功能验证', () => {
-    it('应该创建ContextRepo并支持基本持久化', async () => {
+  describe('Core Persistence Functionality Verification', () => {
+    it('should create ContextRepo and support basic persistence', async () => {
       wrapper = await createPersistenceWrapper()
       
-      // 验证包装器组件正确创建了存储和仓库（通过组件实例方法验证）
+      // Verify the wrapper component correctly created the storage and repository
       expect(wrapper.vm.contextRepo).toBeDefined()
       expect(wrapper.vm.currentContextId).toBeDefined()
       
-      // 验证辅助函数可用
+      // Verify helper functions are available
       expect(typeof wrapper.vm.scanVariables).toBe('function')
       expect(typeof wrapper.vm.replaceVariables).toBe('function') 
       expect(typeof wrapper.vm.isPredefinedVariable).toBe('function')
       expect(typeof wrapper.vm.simulateRefresh).toBe('function')
     })
     
-    it('应该支持变量扫描和替换功能', async () => {
+    it('should support variable scanning and replacement', async () => {
       wrapper = await createPersistenceWrapper()
       
-      // 测试变量扫描
+      // Test variable scanning
       const content = 'Hello {{name}}, your task is {{task}}'
       const variables = wrapper.vm.scanVariables(content)
       expect(variables).toEqual(['name', 'task'])
       
-      // 测试变量替换
+      // Test variable replacement
       const values = { name: 'Alice', task: 'testing' }
       const replaced = wrapper.vm.replaceVariables(content, values)
       expect(replaced).toBe('Hello Alice, your task is testing')
       
-      // 测试预定义变量检测
+      // Test predefined variable detection
       expect(wrapper.vm.isPredefinedVariable('originalPrompt')).toBe(true)
       expect(wrapper.vm.isPredefinedVariable('customVar')).toBe(false)
     })
     
-    it('应该支持上下文数据持久化', async () => {
+    it('should support context data persistence', async () => {
       const testState = {
         messages: [
           { role: 'system', content: 'Test {{mode}} message' }
@@ -397,7 +396,7 @@ describe('ContextEditor 持久化集成测试', () => {
       
       wrapper = await createPersistenceWrapper(testState)
       
-      // 模拟状态更新持久化
+      // Simulate state update persistence
       await wrapper.vm.handleStateUpdate({
         messages: [
           ...testState.messages,
@@ -406,14 +405,14 @@ describe('ContextEditor 持久化集成测试', () => {
         variables: { ...testState.variables, param: 'value' }
       })
       
-      // 验证上下文已创建
+      // Verify a context has been created
       expect(wrapper.vm.currentContextId).toBeTruthy()
       
-      // 验证状态更新事件被发射
+      // Verify the stateChanged event was emitted
       expect(wrapper.emitted('stateChanged')).toBeTruthy()
     })
     
-    it('应该支持刷新后数据恢复', async () => {
+    it('should support data restoration after a refresh', async () => {
       const initialData = {
         messages: [
           { role: 'user', content: 'Initial message with {{var}}' }
@@ -423,7 +422,7 @@ describe('ContextEditor 持久化集成测试', () => {
       
       wrapper = await createPersistenceWrapper(initialData)
       
-      // 模拟数据修改
+      // Simulate data modification
       await wrapper.vm.handleContextChange(
         [
           ...initialData.messages,
@@ -432,39 +431,39 @@ describe('ContextEditor 持久化集成测试', () => {
         { ...initialData.variables, response: 'result' }
       )
       
-      // 验证上下文已创建并有数据
+      // Verify a context has been created and contains data
       expect(wrapper.vm.currentContextId).toBeTruthy()
       
-      // 模拟刷新后恢复
+      // Simulate restoration after a refresh
       const restoredState = await wrapper.vm.simulateRefresh()
       
-      // 验证数据正确恢复
+      // Verify data is correctly restored
       expect(restoredState.messages).toHaveLength(2)
       expect(restoredState.messages[1].content).toBe('Response with {{response}}')
       expect(restoredState.variables.response).toBe('result')
       expect(restoredState.variables.var).toBe('initial')
     })
     
-    it('应该确保变量预览一致性', async () => {
+    it('should ensure variable preview consistency', async () => {
       wrapper = await createPersistenceWrapper()
       
       const testContent = 'Processing {{task}} in {{mode}} environment'
       const testVariables = { task: 'analysis', mode: 'production' }
       
-      // 验证变量扫描结果
+      // Verify variable scan results
       const detectedVars = wrapper.vm.scanVariables(testContent)
       expect(detectedVars).toEqual(['task', 'mode'])
       
-      // 验证完整替换
+      // Verify full replacement
       const fullyReplaced = wrapper.vm.replaceVariables(testContent, testVariables)
       expect(fullyReplaced).toBe('Processing analysis in production environment')
       
-      // 验证缺失变量处理
-      const partialVars = { task: 'analysis' } // mode 缺失
+      // Verify handling of missing variables
+      const partialVars = { task: 'analysis' } // mode is missing
       const partiallyReplaced = wrapper.vm.replaceVariables(testContent, partialVars)
       expect(partiallyReplaced).toBe('Processing analysis in {{mode}} environment')
       
-      // 验证缺失变量检测
+      // Verify detection of missing variables
       const availableVars = Object.keys(partialVars)
       const missingVars = detectedVars.filter(v => !availableVars.includes(v))
       expect(missingVars).toEqual(['mode'])

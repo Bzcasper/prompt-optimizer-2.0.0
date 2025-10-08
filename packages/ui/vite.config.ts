@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
@@ -18,7 +19,7 @@ export default defineConfig({
       formats: ['es', 'cjs']
     },
     watch: process.env.NODE_ENV === 'development' ? {
-      // 更精确的监听配置
+      // More precise watch configuration
       include: ['src/**/*'],
       buildDelay: 100
     } : null,
@@ -38,5 +39,35 @@ export default defineConfig({
     cssCodeSplit: false,
     emptyOutDir: false
   },
-  assetsInclude: ['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.svg']
-}) 
+  assetsInclude: ['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.svg'],
+  test: {
+    // Global timeout set to 5 seconds
+    testTimeout: 5000,
+    // Environment settings
+    environment: 'jsdom',
+    // Global setup files
+    setupFiles: ['./tests/setup.ts'],
+    // Included file patterns
+    include: ['tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    // Excluded file patterns
+    exclude: ['**/node_modules/**', '**/dist/**', '**/.{idea,git,cache,output,temp}/**'],
+    // Global test settings
+    globals: true,
+    // Test coverage configuration
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'coverage/**',
+        'dist/**',
+        '**/[.]**',
+        'packages/*/test?(s)/**',
+        '**/*.d.ts',
+        '**/virtual:*',
+        '**/__x00__*',
+        '**/\x00*',
+        'cypress/**',
+      ],
+    },
+  },
+})

@@ -1,6 +1,6 @@
 /**
- * 全局测试设置文件
- * 为所有测试提供通用的 mock 和环境配置
+ * Global test setup file
+ * Provides common mocks and environment configuration for all tests
  */
 
 import { vi } from 'vitest'

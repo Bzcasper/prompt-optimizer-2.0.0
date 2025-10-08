@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createI18n } from 'vue-i18n'
-import { nextTick } from 'vue'
 import LanguageSwitchDropdown from '../../../src/components/LanguageSwitchDropdown.vue'
 
 // Mock Naive UI components
@@ -18,10 +17,10 @@ vi.mock('naive-ui', () => ({
   }
 }))
 
-// 简单的测试i18n实例
+// Simple test i18n instance
 const createTestI18n = () => createI18n({
   legacy: false,
-  locale: 'zh-CN',
+  locale: 'en-US',
   messages: {
     'zh-CN': {},
     'zh-TW': {},
@@ -29,11 +28,11 @@ const createTestI18n = () => createI18n({
   }
 })
 
-// Mock服务注入
+// Mock service injection
 const mockServices = {
   value: {
     preferenceService: {
-      get: vi.fn().mockResolvedValue('zh-CN'),
+      get: vi.fn().mockResolvedValue('en-US'),
       set: vi.fn().mockResolvedValue(true)
     }
   }
@@ -60,13 +59,13 @@ describe('LanguageSwitchDropdown', () => {
     })
   }
 
-  describe('基本功能', () => {
-    it('应该正确渲染组件', () => {
+  describe('Core Functionality', () => {
+    it('should render the component correctly', () => {
       wrapper = createWrapper()
       expect(wrapper.vm).toBeDefined()
     })
 
-    it('应该包含正确的语言选项', () => {
+    it('should contain the correct language options', () => {
       wrapper = createWrapper()
       const vm = wrapper.vm
       expect(vm.availableLanguages).toHaveLength(3)
@@ -75,11 +74,11 @@ describe('LanguageSwitchDropdown', () => {
       expect(vm.availableLanguages[2].key).toBe('en-US')
     })
 
-    it('应该能够调用语言切换方法', async () => {
+    it('should be able to call the language switch method', async () => {
       wrapper = createWrapper()
       const vm = wrapper.vm
 
-      // 只验证方法能被调用，不测试具体的切换逻辑
+      // Only verify that the method can be called, not the specific switching logic
       expect(typeof vm.handleLanguageSelect).toBe('function')
       await vm.handleLanguageSelect('en-US')
       expect(mockServices.value.preferenceService.set).toHaveBeenCalled()

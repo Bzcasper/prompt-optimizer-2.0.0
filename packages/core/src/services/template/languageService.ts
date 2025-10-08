@@ -118,7 +118,7 @@ export class TemplateLanguageService implements ITemplateLanguageService {
   getLanguageDisplayName(language: BuiltinTemplateLanguage): string {
     switch (language) {
       case 'zh-CN':
-        return '中文';
+        return 'Chinese';
       case 'en-US':
         return 'English';
       default:
@@ -135,9 +135,9 @@ export class TemplateLanguageService implements ITemplateLanguageService {
 }
 
 /**
- * 创建模板语言服务实例的工厂函数
- * @param preferenceService 偏好设置服务实例
- * @returns 模板语言服务实例
+ * Factory function to create a template language service instance
+ * @param preferenceService The preference service instance
+ * @returns A template language service instance
  */
 export function createTemplateLanguageService(
   preferenceService: IPreferenceService
