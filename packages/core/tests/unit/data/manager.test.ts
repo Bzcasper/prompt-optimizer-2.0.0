@@ -262,4 +262,27 @@ describe('DataManager', () => {
       expect(mockPreferenceService.importData).toHaveBeenCalledWith(legacyTestPayload.data.userSettings);
     });
   });
+
+  describe('generateAndScheduleContent', () => {
+    it('should generate and schedule content', async () => {
+      const topic = 'AI in 2024';
+      const keywords = ['AI', '2024', 'future'];
+      const publishTime = new Date().toISOString();
+      const platform = 'blog';
+
+      const result = await dataManager.generateAndScheduleContent(
+        topic,
+        keywords,
+        publishTime,
+        platform
+      );
+
+      expect(result).toHaveProperty('content_id');
+      expect(result).toHaveProperty('publish_datetime', publishTime);
+      expect(result).toHaveProperty('platform', platform);
+      const content = `# My Awesome Blog Post about ${topic}\n\nThis is a blog post about ${topic} and ${keywords.join(', ')}.`;
+      const content_id = require('crypto').createHash('sha256').update(content).digest('hex');
+      expect(result).toHaveProperty('content_id', content_id);
+    });
+  });
 });

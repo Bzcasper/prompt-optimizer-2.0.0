@@ -18,6 +18,8 @@ import { ContextRepo } from '../context/types';
 /**
  * 数据管理器接口
  */
+import { createHash } from 'crypto';
+
 export interface IDataManager {
   /**
    * 导出所有数据
@@ -30,6 +32,21 @@ export interface IDataManager {
    * @param dataString JSON格式的数据字符串
    */
   importAllData(dataString: string): Promise<void>;
+
+  /**
+   * Generates and schedules content by simulating a chain of agent calls.
+   * @param topic The topic for the content.
+   * @param keywords An array of keywords for the content.
+   * @param publishTime The ISO string for when the content should be published.
+   * @param platform The platform to publish to.
+   * @returns A JSON payload ready for the scheduling agent.
+   */
+  generateAndScheduleContent(
+    topic: string,
+    keywords: string[],
+    publishTime: string,
+    platform: 'blog'
+  ): Promise<object>;
 }
 
 export class DataManager implements IDataManager {
@@ -134,6 +151,39 @@ export class DataManager implements IDataManager {
     if (errors.length > 0) {
       throw new Error(`Import completed with ${errors.length} errors: ${errors.join('; ')}`);
     }
+  }
+
+  async generateAndScheduleContent(
+    topic: string,
+    keywords: string[],
+    publishTime: string,
+    platform: 'blog'
+  ): Promise<object> {
+    // 1. Simulate Agent Call: seo_blog_agent
+    const seo_blog_agent_output = {
+      image_prompts: [`A cinematic shot of a futuristic city with flying cars, neon lights, and a sense of wonder for topic: ${topic}`],
+      content: `# My Awesome Blog Post about ${topic}\n\nThis is a blog post about ${topic} and ${keywords.join(', ')}.`,
+    };
+
+    const { content } = seo_blog_agent_output;
+
+    // 2. Simulate Agent Chain: image_prompt_agent
+    // In a real scenario, you would call the agent here.
+    // For this simulation, we'll just use the first prompt.
+
+    // 3. Simulate Final Action: Construct the final JSON payload
+    const content_id = createHash('sha256').update(content).digest('hex');
+
+    const finalPayload = {
+      content_id,
+      publish_datetime: publishTime,
+      platform,
+    };
+
+    // 4. Final Output: Return the fully constructed and validated JSON payload
+    // In a real implementation, you would validate this against the schema.
+    // For this simulation, we assume it's valid.
+    return finalPayload;
   }
 }
 
