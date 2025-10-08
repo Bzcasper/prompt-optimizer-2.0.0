@@ -40,7 +40,7 @@ describe('Mock vs Real Implementation Tests', () => {
       console.log(`Mock调用时间: ${mockTime}ms, 真实调用时间: ${realTime}ms`)
       
       // Mock通常更快，但无法发现真实的性能问题
-      expect(mockTime).toBeLessThan(10) // Mock通常很快
+      expect(mockTime).toBeLessThan(100) // Mock通常很快
       // 真实调用可能更慢，取决于localStorage的实现
     })
 

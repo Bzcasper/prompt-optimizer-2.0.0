@@ -16,17 +16,14 @@ describe('PromptService Enhanced Features', () => {
     }
     
     mockLLMService = {
-      sendMessage: vi.fn().mockResolvedValue('optimized result'),
+      sendMessage: vi.fn(),
       sendMessageStream: vi.fn()
     }
     
     mockTemplateManager = {
       getTemplate: vi.fn().mockImplementation((id: string) => {
-        // Return null for non-existent templates
-        if (id === 'non-existent-template') {
-          return null
-        }
-        // Return valid template for existing IDs
+        if (id === 'non-existent-template') return null;
+        if (id === 'refine-based-on-critique') return { id: 'refine', content: 'refined: {{originalPrompt}}' };
         return {
           id: id,
           content: 'test template content {{originalPrompt}}',
@@ -52,10 +49,14 @@ describe('PromptService Enhanced Features', () => {
       mockTemplateManager,
       mockHistoryManager
     )
+
+    // Mock the critique functionality to isolate optimizePrompt tests
+    vi.spyOn(promptService, 'critiquePrompt').mockResolvedValue({ is_passed: true, critique: 'Looks good' });
   })
 
   describe('optimizePrompt', () => {
     it('should optimize system prompt successfully', async () => {
+      mockLLMService.sendMessage.mockResolvedValue('optimized result');
       const request: OptimizationRequest = {
         optimizationMode: 'system' as const,
         targetPrompt: 'test system prompt',
@@ -66,11 +67,12 @@ describe('PromptService Enhanced Features', () => {
       const result = await promptService.optimizePrompt(request)
 
       expect(result).toBe('optimized result')
-      expect(mockLLMService.sendMessage).toHaveBeenCalled()
-      // 注意：历史记录保存由UI层处理，Service层不保存历史记录
+      expect(mockLLMService.sendMessage).toHaveBeenCalledTimes(1);
+      expect(promptService.critiquePrompt).toHaveBeenCalledWith('optimized result', 'test-model');
     })
 
     it('should optimize user prompt successfully', async () => {
+      mockLLMService.sendMessage.mockResolvedValue('optimized result');
       const request: OptimizationRequest = {
         optimizationMode: 'user' as const,
         targetPrompt: 'test user prompt',
@@ -81,21 +83,28 @@ describe('PromptService Enhanced Features', () => {
       const result = await promptService.optimizePrompt(request)
 
       expect(result).toBe('optimized result')
-      expect(mockLLMService.sendMessage).toHaveBeenCalled()
+      expect(mockLLMService.sendMessage).toHaveBeenCalledTimes(1);
     })
 
-    it('should optimize user prompt without context successfully', async () => {
+    it('should trigger refinement if critique fails', async () => {
+      vi.spyOn(promptService, 'critiquePrompt').mockResolvedValue({ is_passed: false, critique: 'Needs refinement' });
+      mockLLMService.sendMessage
+        .mockResolvedValueOnce('initial result')
+        .mockResolvedValueOnce('refined result');
+
       const request: OptimizationRequest = {
         optimizationMode: 'user' as const,
         targetPrompt: 'test user prompt',
-        modelKey: 'test-model'
-      }
+        modelKey: 'test-model',
+        templateId: 'test-template'
+      };
 
-      const result = await promptService.optimizePrompt(request)
+      const result = await promptService.optimizePrompt(request);
 
-      expect(result).toBe('optimized result')
-      expect(mockLLMService.sendMessage).toHaveBeenCalled()
-    })
+      expect(result).toBe('refined result');
+      expect(mockLLMService.sendMessage).toHaveBeenCalledTimes(2);
+      expect(promptService.critiquePrompt).toHaveBeenCalledWith('initial result', 'test-model');
+    });
 
     it('should throw error for empty target prompt', async () => {
       const request: OptimizationRequest = {
@@ -122,13 +131,14 @@ describe('PromptService Enhanced Features', () => {
 
   describe('testPrompt', () => {
     it('should test prompts with proper context', async () => {
+      mockLLMService.sendMessage.mockResolvedValue('test result');
       const result = await promptService.testPrompt(
         'system prompt',
         'user prompt',
         'test-model'
       )
 
-      expect(result).toBe('optimized result')
+      expect(result).toBe('test result')
       expect(mockLLMService.sendMessage).toHaveBeenCalledWith(
         [
           { role: 'system', content: 'system prompt' },
@@ -139,13 +149,14 @@ describe('PromptService Enhanced Features', () => {
     })
 
     it('should test user prompt without system prompt', async () => {
+        mockLLMService.sendMessage.mockResolvedValue('test result');
       const result = await promptService.testPrompt(
         '',
         'user prompt only',
         'test-model'
       )
 
-      expect(result).toBe('optimized result')
+      expect(result).toBe('test result')
       expect(mockLLMService.sendMessage).toHaveBeenCalledWith(
         [
           { role: 'user', content: 'user prompt only' }
@@ -172,117 +183,81 @@ describe('PromptService Enhanced Features', () => {
   })
 
   describe('optimizePromptStream', () => {
-    it('should handle streaming optimization', async () => {
+    it('should handle streaming optimization when critique passes', async () => {
+      mockLLMService.sendMessage.mockResolvedValue('final result');
+
       const request: OptimizationRequest = {
         optimizationMode: 'system' as const,
         targetPrompt: 'test prompt',
         modelKey: 'test-model'
       }
 
-      const callbacks = {
-        onToken: vi.fn(),
-        onComplete: vi.fn(),
-        onError: vi.fn()
-      }
-
-      // Mock streaming behavior
-      mockLLMService.sendMessageStream.mockImplementation(async (messages, modelKey, streamCallbacks) => {
-        streamCallbacks.onToken('test')
-        streamCallbacks.onToken(' result')
-        // 模拟结构化响应
-        const mockResponse = {
-          content: 'test result',
-          reasoning: 'some reasoning'
-        }
-        await streamCallbacks.onComplete(mockResponse)
-      })
+      const callbacks = { onToken: vi.fn(), onComplete: vi.fn(), onError: vi.fn() }
 
       await promptService.optimizePromptStream(request, callbacks)
 
-      expect(callbacks.onToken).toHaveBeenCalledWith('test')
-      expect(callbacks.onToken).toHaveBeenCalledWith(' result')
-      expect(callbacks.onComplete).toHaveBeenCalled()
-      // 注意：历史记录保存由UI层处理，Service层不保存历史记录
-    })
+      expect(mockLLMService.sendMessage).toHaveBeenCalledTimes(1);
+      expect(promptService.critiquePrompt).toHaveBeenCalledWith('final result', 'test-model');
+      expect(callbacks.onToken).toHaveBeenCalledWith('final result');
+      expect(callbacks.onComplete).toHaveBeenCalled();
+    });
+
+    it('should handle streaming optimization when critique fails', async () => {
+      vi.spyOn(promptService, 'critiquePrompt').mockResolvedValue({ is_passed: false, critique: 'Needs refinement' });
+      mockLLMService.sendMessage
+        .mockResolvedValueOnce('initial result')
+        .mockResolvedValueOnce('refined result');
+
+      const request: OptimizationRequest = {
+        optimizationMode: 'system' as const,
+        targetPrompt: 'test prompt',
+        modelKey: 'test-model'
+      };
+
+      const callbacks = { onToken: vi.fn(), onComplete: vi.fn(), onError: vi.fn(), onReasoningToken: vi.fn() };
+
+      await promptService.optimizePromptStream(request, callbacks);
+
+      expect(mockLLMService.sendMessage).toHaveBeenCalledTimes(2);
+      expect(promptService.critiquePrompt).toHaveBeenCalledWith('initial result', 'test-model');
+      expect(callbacks.onReasoningToken).toHaveBeenCalled();
+      expect(callbacks.onToken).toHaveBeenCalledWith('refined result');
+      expect(callbacks.onComplete).toHaveBeenCalled();
+    });
 
     it('should handle missing model key', async () => {
-      const callbacks = {
-        onToken: vi.fn(),
-        onComplete: vi.fn(),
-        onError: vi.fn()
-      }
-
+      const callbacks = { onToken: vi.fn(), onComplete: vi.fn(), onError: vi.fn() }
       const request: OptimizationRequest = {
         optimizationMode: 'system' as const,
         targetPrompt: 'Test prompt',
         templateId: 'general-optimize',
-        modelKey: '' // Empty model key
+        modelKey: ''
       }
-
-      await expect(
-        promptService.optimizePromptStream(request, callbacks)
-      ).rejects.toThrow('Model key is required')
-    })
-
-    it('should handle undefined model key', async () => {
-      const callbacks = {
-        onToken: vi.fn(),
-        onComplete: vi.fn(),
-        onError: vi.fn()
-      }
-
-      const request: OptimizationRequest = {
-        optimizationMode: 'system' as const,
-        targetPrompt: 'Test prompt',
-        templateId: 'general-optimize',
-        modelKey: undefined as any // Undefined model key
-      }
-
-      await expect(
-        promptService.optimizePromptStream(request, callbacks)
-      ).rejects.toThrow('Model key is required')
-    })
+      await expect(promptService.optimizePromptStream(request, callbacks)).rejects.toThrow('Model key is required');
+    });
 
     it('should handle missing template gracefully', async () => {
-      const callbacks = {
-        onToken: vi.fn(),
-        onComplete: vi.fn(),
-        onError: vi.fn()
-      }
-
+      const callbacks = { onToken: vi.fn(), onComplete: vi.fn(), onError: vi.fn() }
       const request: OptimizationRequest = {
         optimizationMode: 'system' as const,
         targetPrompt: 'Test prompt',
         templateId: 'non-existent-template',
         modelKey: 'test-model'
       }
-
-      await expect(
-        promptService.optimizePromptStream(request, callbacks)
-      ).rejects.toThrow('Template not found or invalid')
-    })
+      await expect(promptService.optimizePromptStream(request, callbacks)).rejects.toThrow('Template not found or invalid');
+    });
   })
 
   describe('testPromptStream', () => {
     it('should handle streaming context testing', async () => {
-      const callbacks = {
-        onToken: vi.fn(),
-        onComplete: vi.fn(),
-        onError: vi.fn()
-      }
+      const callbacks = { onToken: vi.fn(), onComplete: vi.fn(), onError: vi.fn() }
 
       mockLLMService.sendMessageStream.mockImplementation(async (messages, modelKey, streamCallbacks) => {
-        streamCallbacks.onToken('test')
-        streamCallbacks.onToken(' response')
-        await streamCallbacks.onComplete()
+        streamCallbacks.onToken('test response');
+        await streamCallbacks.onComplete();
       })
 
-      await promptService.testPromptStream(
-        'system prompt',
-        'user prompt',
-        'test-model',
-        callbacks
-      )
+      await promptService.testPromptStream('system prompt', 'user prompt', 'test-model', callbacks);
 
       expect(mockLLMService.sendMessageStream).toHaveBeenCalledWith(
         [

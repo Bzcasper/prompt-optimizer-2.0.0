@@ -66,6 +66,7 @@ import { IMAGE_OPTIMIZE_TEMPLATES } from './image-optimize';
 import { ITERATE_TEMPLATES } from './iterate';
 import { OPTIMIZE_TEMPLATES } from './optimize';
 import { USER_OPTIMIZE_TEMPLATES } from './user-optimize';
+import { CRITIQUE_TEMPLATES } from './critique';
 
 // 简单的模板集合 - 模板自身已包含完整信息（id、name、language、type等）
 export const ALL_TEMPLATES = {
@@ -76,6 +77,7 @@ export const ALL_TEMPLATES = {
   ...ITERATE_TEMPLATES,
   ...OPTIMIZE_TEMPLATES,
   ...USER_OPTIMIZE_TEMPLATES,
+  ...CRITIQUE_TEMPLATES,
   general_optimize,
   general_optimize_en,
   output_format_optimize,

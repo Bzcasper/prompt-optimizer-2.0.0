@@ -59,7 +59,9 @@ describe('PromptService', () => {
 
   describe('optimizePrompt', () => {
     it('应该成功优化提示词', async () => {
-      vi.spyOn(llmService, 'sendMessage').mockResolvedValue('优化后的提示词');
+      vi.spyOn(llmService, 'sendMessage')
+        .mockResolvedValueOnce('优化后的提示词') // 1. Initial optimization
+        .mockResolvedValueOnce(JSON.stringify({ is_passed: true, critique: 'Looks good' })); // 2. Critique call
 
       const request: OptimizationRequest = {
         optimizationMode: 'system',
@@ -68,7 +70,7 @@ describe('PromptService', () => {
       };
       const result = await promptService.optimizePrompt(request);
       expect(result).toBe('优化后的提示词');
-      expect(llmService.sendMessage).toHaveBeenCalled();
+      expect(llmService.sendMessage).toHaveBeenCalledTimes(2);
     });
 
     it('当模型不存在时应抛出错误', async () => {

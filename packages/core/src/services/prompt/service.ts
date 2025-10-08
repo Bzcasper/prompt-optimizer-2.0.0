@@ -1,4 +1,4 @@
-import { IPromptService, OptimizationRequest, CustomConversationRequest } from './types';
+import { IPromptService, OptimizationRequest, CustomConversationRequest, CritiqueResult } from './types';
 import { Message, StreamHandlers, ILLMService } from '../llm/types';
 import { PromptRecord } from '../history/types';
 import { IModelManager } from '../model/types';
@@ -120,13 +120,35 @@ export class PromptService implements IPromptService {
       }
 
       const messages = TemplateProcessor.processTemplate(template, context);
-      const result = await this.llmService.sendMessage(messages, request.modelKey);
+      const initialResult = await this.llmService.sendMessage(messages, request.modelKey);
 
-      this.validateResponse(result, request.targetPrompt);
+      this.validateResponse(initialResult, request.targetPrompt);
+
+      // Critique and Refinement Loop
+      const critiqueResult = await this.critiquePrompt(initialResult, request.modelKey);
+
+      if (!critiqueResult.is_passed) {
+        const refineTemplate = await this.templateManager.getTemplate('refine-based-on-critique');
+        if (!refineTemplate?.content) {
+          throw new OptimizationError('Refinement template not found or invalid', initialResult);
+        }
+
+        const refineContext: TemplateContext = {
+          originalPrompt: initialResult,
+          critique: critiqueResult.critique,
+        };
+
+        const refineMessages = TemplateProcessor.processTemplate(refineTemplate, refineContext);
+        const refinedResult = await this.llmService.sendMessage(refineMessages, request.modelKey);
+        this.validateResponse(refinedResult, initialResult);
+
+        return refinedResult;
+      }
+
       // 注意：历史记录保存由UI层的historyManager.createNewChain方法处理
       // 移除重复的saveOptimizationHistory调用以避免重复保存
 
-      return result;
+      return initialResult;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       throw new OptimizationError(`Optimization failed: ${errorMessage}`, request.targetPrompt);
@@ -338,31 +360,54 @@ export class PromptService implements IPromptService {
 
       const messages = TemplateProcessor.processTemplate(template, context);
 
-      // 使用新的结构化流式响应
-      await this.llmService.sendMessageStream(
-        messages,
-        request.modelKey,
-        {
-          onToken: callbacks.onToken,
-          onReasoningToken: callbacks.onReasoningToken, // 支持推理内容流
-          onComplete: async (response) => {
-            if (response) {
-              // 验证主要内容
-              this.validateResponse(response.content, request.targetPrompt);
+      // NOTE: The critique and refinement loop requires multiple LLM calls.
+      // This prevents a true pass-through stream of the initial generation.
+      // The entire loop is completed internally, and the final result is then
+      // passed to the stream callbacks. From the client's perspective, this
+      // will appear as a single-chunk stream after a delay.
+      const initialResult = await this.llmService.sendMessage(messages, request.modelKey);
+      this.validateResponse(initialResult, request.targetPrompt);
 
-              // 注意：历史记录保存由UI层的historyManager.createNewChain方法处理
-              // 移除重复的saveOptimizationHistory调用以避免重复保存
-            }
+      const critiqueResult = await this.critiquePrompt(initialResult, request.modelKey);
+      let finalResult = initialResult;
 
-            // 调用原始完成回调，传递结构化响应
-            callbacks.onComplete(response);
-          },
-          onError: callbacks.onError
+      if (!critiqueResult.is_passed) {
+        if (callbacks.onReasoningToken) {
+          callbacks.onReasoningToken(`[CRITIQUE]: ${critiqueResult.critique}\n[REFINING]...`);
         }
-      );
+        const refineTemplate = await this.templateManager.getTemplate('refine-based-on-critique');
+        if (!refineTemplate?.content) {
+          throw new OptimizationError('Refinement template not found or invalid', initialResult);
+        }
+
+        const refineContext: TemplateContext = {
+          originalPrompt: initialResult,
+          critique: critiqueResult.critique,
+        };
+
+        const refineMessages = TemplateProcessor.processTemplate(refineTemplate, refineContext);
+        finalResult = await this.llmService.sendMessage(refineMessages, request.modelKey);
+        this.validateResponse(finalResult, initialResult);
+      }
+
+      // "Stream" the final result to the client.
+      if (callbacks.onToken) {
+        callbacks.onToken(finalResult);
+      }
+      if (callbacks.onComplete) {
+        const response = {
+            content: finalResult,
+            metadata: { model: request.modelKey }
+        };
+        callbacks.onComplete(response);
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      throw new OptimizationError(`Optimization failed: ${errorMessage}`, request.targetPrompt);
+      const optimizationError = new OptimizationError(`Optimization stream failed: ${errorMessage}`, request.targetPrompt);
+      if (callbacks.onError) {
+        callbacks.onError(optimizationError);
+      }
+      throw optimizationError;
     }
   }
 
@@ -607,6 +652,46 @@ export class PromptService implements IPromptService {
       } else {
         throw new TestError(`Custom conversation test failed: ${errorMessage}`, '', '');
       }
+    }
+  }
+
+  /**
+   * 批评一个提示词
+   */
+  async critiquePrompt(promptToCritique: string, modelKey: string): Promise<CritiqueResult> {
+    try {
+      this.validateInput(promptToCritique, modelKey);
+
+      const modelConfig = await this.modelManager.getModel(modelKey);
+      if (!modelConfig) {
+        throw new ServiceDependencyError('Model not found', 'ModelManager');
+      }
+
+      const template = await this.templateManager.getTemplate('critique-prompt');
+      if (!template?.content) {
+        throw new OptimizationError('Critique template not found or invalid', promptToCritique);
+      }
+
+      const context: TemplateContext = {
+        promptToCritique,
+      };
+
+      const messages = TemplateProcessor.processTemplate(template, context);
+      const resultJson = await this.llmService.sendMessage(messages, modelKey);
+
+      try {
+        // The LLM is expected to return a JSON string.
+        const result = JSON.parse(resultJson);
+        if (typeof result.is_passed !== 'boolean' || typeof result.critique !== 'string') {
+          throw new Error('Invalid JSON structure from critique response.');
+        }
+        return result;
+      } catch (e) {
+        throw new OptimizationError(`Failed to parse critique response: ${resultJson}`, promptToCritique);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new OptimizationError(`Critique failed: ${errorMessage}`, promptToCritique);
     }
   }
 }
