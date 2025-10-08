@@ -9,6 +9,7 @@
     class="action-button"
     :ghost="ghost"
     :round="round"
+    :aria-label="text"
   >
     <template #icon>
       <slot name="icon">

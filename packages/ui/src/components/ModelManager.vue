@@ -76,6 +76,7 @@
                   @click="testConnection(model.key)"
                   size="small"
                   quaternary
+                  :aria-label="t('modelManager.testConnection')"
                   :disabled="isTestingConnectionFor(model.key)"
                   :loading="isTestingConnectionFor(model.key)"
                 >
@@ -89,6 +90,7 @@
                   @click="editModel(model.key)"
                   size="small"
                   quaternary
+                  :aria-label="t('modelManager.editModel')"
                 >
                   <template #icon>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
@@ -103,6 +105,7 @@
                   size="small"
                   :type="model.enabled ? 'warning' : 'success'"
                   quaternary
+                  :aria-label="model.enabled ? t('common.disable') : t('common.enable')"
                 >
                   <template #icon>
                     <svg v-if="model.enabled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M12 6v.343"/><path d="M18.218 18.218A7 7 0 0 1 5 15V9a7 7 0 0 1 .782-3.218"/><path d="M19 13.343V9A7 7 0 0 0 8.56 2.902"/><path d="M22 22 2 2"/></svg>
@@ -117,6 +120,7 @@
                   size="small"
                   type="error"
                   quaternary
+                  :aria-label="t('common.delete')"
                 >
                   <template #icon>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
@@ -155,8 +159,9 @@
         <form @submit.prevent="saveEdit">
           <NSpace vertical :size="16">
             <NSpace vertical :size="8">
-              <NText tag="label" strong>{{ t('modelManager.displayName') }}</NText>
+              <NText tag="label" :for="displayNameId" strong>{{ t('modelManager.displayName') }}</NText>
               <NInput
+                :id="displayNameId"
                 v-model:value="editingModel.name"
                 :placeholder="t('modelManager.displayNamePlaceholder')"
                 required
@@ -164,11 +169,12 @@
             </NSpace>
               
               <NSpace vertical :size="8">
-                <NText tag="label" strong>
+                <NText tag="label" :for="apiUrlId" strong>
                   {{ t('modelManager.apiUrl') }}
                   <NText depth="3" style="margin-left: 4px;" :title="t('modelManager.apiUrlHint')">?</NText>
                 </NText>
                 <NInput
+                  :id="apiUrlId"
                   v-model:value="editingModel.baseURL"
                   :placeholder="t('modelManager.apiUrlPlaceholder')"
                   required
@@ -176,8 +182,9 @@
               </NSpace>
               
               <NSpace vertical :size="8">
-                <NText tag="label" strong>{{ t('modelManager.apiKey') }}</NText>
+                <NText tag="label" :for="apiKeyId" strong>{{ t('modelManager.apiKey') }}</NText>
                 <NInput
+                  :id="apiKeyId"
                   v-model:value="editingModel.apiKey"
                   type="password"
                   autocomplete="off"
@@ -186,8 +193,9 @@
               </NSpace>
               
               <NSpace vertical :size="8">
-                <NText tag="label" strong>{{ t('modelManager.defaultModel') }}</NText>
+                <NText tag="label" :for="defaultModelId" strong>{{ t('modelManager.defaultModel') }}</NText>
                 <InputWithSelect
+                  :id="defaultModelId"
                   v-model="editingModel.defaultModel"
                   :options="modelOptions"
                   :is-loading="isLoadingModels"
@@ -294,6 +302,7 @@
                           type="error"
                           quaternary
                           circle
+                          :aria-label="t('modelManager.advancedParameters.removeParam', { paramName: getParamMetadata(key)?.label || key })"
                         >
                           ×
                         </NButton>
@@ -396,8 +405,9 @@
         <form @submit.prevent="addCustomModel">
           <NSpace vertical :size="16">
             <NSpace vertical :size="8">
-              <NText tag="label" strong>{{ t('modelManager.modelKey') }}</NText>
+              <NText tag="label" :for="newModelKeyId" strong>{{ t('modelManager.modelKey') }}</NText>
               <NInput
+                :id="newModelKeyId"
                 v-model:value="newModel.key"
                 :placeholder="t('modelManager.modelKeyPlaceholder')"
                 required
@@ -405,8 +415,9 @@
             </NSpace>
             
             <NSpace vertical :size="8">
-              <NText tag="label" strong>{{ t('modelManager.displayName') }}</NText>
+              <NText tag="label" :for="newModelNameId" strong>{{ t('modelManager.displayName') }}</NText>
               <NInput
+                :id="newModelNameId"
                 v-model:value="newModel.name"
                 :placeholder="t('modelManager.displayNamePlaceholder')"
                 required
@@ -414,11 +425,12 @@
             </NSpace>
             
             <NSpace vertical :size="8">
-              <NText tag="label" strong>
+              <NText tag="label" :for="newModelApiUrlId" strong>
                 {{ t('modelManager.apiUrl') }}
                 <NText depth="3" style="margin-left: 4px;" :title="t('modelManager.apiUrlHint')">?</NText>
               </NText>
               <NInput
+                :id="newModelApiUrlId"
                 v-model:value="newModel.baseURL"
                 :placeholder="t('modelManager.apiUrlPlaceholder')"
                 required
@@ -426,8 +438,9 @@
             </NSpace>
             
             <NSpace vertical :size="8">
-              <NText tag="label" strong>{{ t('modelManager.apiKey') }}</NText>
+              <NText tag="label" :for="newModelApiKeyId" strong>{{ t('modelManager.apiKey') }}</NText>
               <NInput
+                :id="newModelApiKeyId"
                 v-model:value="newModel.apiKey"
                 type="password"
                 autocomplete="off"
@@ -436,8 +449,9 @@
             </NSpace>
             
             <NSpace vertical :size="8">
-              <NText tag="label" strong>{{ t('modelManager.defaultModel') }}</NText>
+              <NText tag="label" :for="newModelDefaultModelId" strong>{{ t('modelManager.defaultModel') }}</NText>
               <InputWithSelect
+                :id="newModelDefaultModelId"
                 v-model="newModel.defaultModel"
                 :options="modelOptions"
                 :is-loading="isLoadingModels"
@@ -639,7 +653,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, computed, inject, provide } from 'vue'; // Added computed, inject and provide
+import { ref, onMounted, onUnmounted, watch, computed, inject, provide, useId } from 'vue'; // Added computed, inject and provide
 import { useI18n } from 'vue-i18n';
 import {
   NModal, NScrollbar, NSpace, NCard, NText, NH4, NTag, NButton,
@@ -711,6 +725,17 @@ provide('imageModelManager', imageModelManager);
 provide('imageRegistry', imageAdapterRegistry);
 // 额外提供 imageService，供下游 composable 使用（无感知地走 IPC 或本地实现）
 provide('imageService', services.value.imageService);
+
+// Accessibility IDs
+const displayNameId = useId()
+const apiUrlId = useId()
+const apiKeyId = useId()
+const defaultModelId = useId()
+const newModelKeyId = useId()
+const newModelNameId = useId()
+const newModelApiUrlId = useId()
+const newModelApiKeyId = useId()
+const newModelDefaultModelId = useId()
 
 // =============== 状态变量 ===============
 // UI状态
