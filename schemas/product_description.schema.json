@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProductDescriptionOutput",
+  "type": "object",
+  "required": [
+    "product_title",
+    "description_short",
+    "description_long",
+    "tags"
+  ],
+  "properties": {
+    "product_title": {
+      "type": "string",
+      "description": "The main, SEO-friendly title for the product."
+    },
+    "description_short": {
+      "type": "string",
+      "description": "A concise, engaging summary of the product, suitable for quick previews."
+    },
+    "description_long": {
+      "type": "string",
+      "description": "A detailed product description in Markdown format, including subheadings and feature details."
+    },
+    "tags": {
+      "type": "array",
+      "description": "A list of relevant keywords or tags for the product.",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

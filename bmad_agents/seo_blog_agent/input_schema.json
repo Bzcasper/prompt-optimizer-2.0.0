@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SEO Blog Agent Input",
+  "type": "object",
+  "properties": {
+    "topic": {
+      "type": "string",
+      "description": "The main topic of the blog post."
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "A list of keywords to target for SEO."
+    },
+    "audience": {
+      "type": "string",
+      "description": "The target audience for the blog post."
+    },
+    "tone": {
+      "type": "string",
+      "enum": ["professional", "casual", "humorous", "informative"],
+      "default": "informative"
+    },
+    "style": {
+      "type": "string",
+      "enum": ["narrative", "how-to-guide", "listicle", "news-update"],
+      "default": "how-to-guide"
+    },
+    "use_keyword_expander": {
+      "type": "boolean",
+      "description": "If true, the agent will use the KeywordExpanderAgent to expand the initial keywords.",
+      "default": false
+    },
+    "context_id": {
+      "type": "string",
+      "description": "An optional ID to continue a previous blog post generation."
+    }
+  },
+  "required": ["topic"]
+}

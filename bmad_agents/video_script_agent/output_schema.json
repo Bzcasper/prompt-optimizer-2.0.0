@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Video Script Agent Output",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "The title of the video."
+    },
+    "script": {
+      "type": "array",
+      "description": "The video script, broken down into scenes.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "scene_number": {
+            "type": "integer"
+          },
+          "shot_type": {
+            "type": "string",
+            "description": "The suggested camera shot type for the scene (e.g., 'wide shot', 'close-up')."
+          },
+          "visuals": {
+            "type": "string",
+            "description": "Description of the visuals for the scene."
+          },
+          "dialogue": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "character": { "type": "string" },
+                "line": { "type": "string" }
+              }
+            },
+            "description": "The dialogue for the scene, with lines attributed to characters."
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "description": "Estimated duration of the scene in seconds."
+          },
+          "image_reference": {
+            "type": "string",
+            "description": "A prompt for the Image Prompt Agent to generate a relevant image for this scene."
+          }
+        },
+        "required": ["scene_number", "shot_type", "visuals", "dialogue", "duration_seconds"]
+      }
+    },
+    "storyboard_notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "High-level notes for the storyboard artist."
+    },
+    "total_estimated_duration_seconds": {
+      "type": "integer",
+      "description": "Total estimated duration of the video in seconds."
+    }
+  },
+  "required": ["title", "script", "storyboard_notes", "total_estimated_duration_seconds"]
+}

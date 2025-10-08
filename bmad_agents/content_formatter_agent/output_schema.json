@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Content Formatter Agent Output",
+  "type": "object",
+  "properties": {
+    "formatted_content": {
+      "type": "string",
+      "description": "The content in the specified format."
+    }
+  },
+  "required": ["formatted_content"]
+}

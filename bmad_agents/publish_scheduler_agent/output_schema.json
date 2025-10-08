@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Publish Scheduler Agent Output",
+  "type": "object",
+  "properties": {
+    "schedule_id": {
+      "type": "string",
+      "description": "A unique identifier for the scheduled publishing event."
+    },
+    "content_id": {
+      "type": "string",
+      "description": "The ID of the content that was scheduled."
+    },
+    "publish_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The ISO 8601 datetime when the content is scheduled to be published."
+    },
+    "platform": {
+      "type": "string",
+      "description": "The platform where the content will be published."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["scheduled", "failed"],
+      "description": "The status of the scheduling request."
+    }
+  },
+  "required": ["schedule_id", "content_id", "publish_datetime", "platform", "status"]
+}

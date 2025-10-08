@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SEO Blog Agent Output",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "The generated title of the blog post."
+    },
+    "slug": {
+      "type": "string",
+      "description": "A URL-friendly slug for the blog post."
+    },
+    "meta_description": {
+      "type": "string",
+      "description": "A meta description for SEO purposes."
+    },
+    "content": {
+      "type": "string",
+      "description": "The full content of the blog post in Markdown format."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "A list of relevant tags for the blog post."
+    },
+    "image_prompts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "A list of prompts for generating images for the blog post."
+    },
+    "context_id": {
+      "type": "string",
+      "description": "An ID to be used for follow-up requests to continue or expand on this blog post."
+    }
+  },
+  "required": ["title", "slug", "meta_description", "content", "tags", "context_id"]
+}
