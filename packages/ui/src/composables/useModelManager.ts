@@ -1,4 +1,4 @@
-import { watch, computed, reactive, nextTick, type Ref } from 'vue'
+import { watch, computed, reactive, nextTick, type Ref, ref } from 'vue'
 import { MODEL_SELECTION_KEYS, type ModelConfig } from '@prompt-optimizer/core'
 import { useToast } from './useToast'
 import { useI18n } from 'vue-i18n'
@@ -10,6 +10,7 @@ export interface ModelManagerHooks {
   showConfig: boolean
   selectedOptimizeModel: string
   selectedTestModel: string
+  allModels: Ref<(ModelConfig & { key: string; })[]>;
   handleModelManagerClose: () => void
   handleModelsUpdated: (modelKey: string) => void
   handleModelSelect: (model: ModelConfig & { key: string }) => void
@@ -33,9 +34,10 @@ export function useModelManager(
   
   // 模型管理器引用
   const modelManager = computed(() => services.value?.modelManager)
+  const allModels = ref<(ModelConfig & { key: string })[]>([])
 
   // 创建一个 reactive 状态对象
-  const state = reactive<ModelManagerHooks>({
+  const state = reactive({
     showConfig: false,
     selectedOptimizeModel: '',
     selectedTestModel: '',
@@ -72,8 +74,9 @@ export function useModelManager(
     },
     initModelSelection: async () => {
       try {
-        const allModels = await modelManager.value!.getAllModels()
-        const enabledModels = allModels.filter(m => m.enabled)
+        const models = await modelManager.value!.getAllModels()
+        allModels.value = models
+        const enabledModels = models.filter(m => m.enabled)
         const defaultModel = enabledModels[0]?.key
   
         if (enabledModels.length > 0) {
@@ -98,8 +101,9 @@ export function useModelManager(
     loadModels: async () => {
       try {
         // Get latest enabled models list
-        const allModels = await modelManager.value!.getAllModels()
-        const enabledModels = allModels.filter((m: any) => m.enabled)
+        const models = await modelManager.value!.getAllModels()
+        allModels.value = models
+        const enabledModels = models.filter((m: any) => m.enabled)
         const defaultModel = enabledModels[0]?.key
   
         // Verify if current selected models are still available
@@ -151,5 +155,8 @@ export function useModelManager(
     }
   }, { immediate: true })
 
-  return state
-} 
+  return {
+    ...state,
+    allModels,
+  }
+}

@@ -35,8 +35,21 @@
       :rows="4"
       :autosize="{ minRows: 4, maxRows: 12 }"
       clearable
-      show-count
     />
+    <NFlex justify="space-between" align="center" style="margin-top: 4px;">
+      <NAlert v-if="showWarning" type="warning" :show-icon="true" :bordered="false" style="padding: 2px 8px;">
+        Prompt length is approaching the model's limit.
+      </NAlert>
+      <div v-else></div> <!-- Placeholder to keep count to the right -->
+      <NText
+        v-if="maxTokens"
+        :depth="3"
+        style="font-size: 12px; margin-left: auto;"
+        aria-live="polite"
+      >
+        {{ charCount }} / {{ maxTokens }}
+      </NText>
+    </NFlex>
 
     <!-- 控制面板 -->
     <NGrid :cols="24" :x-gap="12" responsive="screen">
@@ -96,10 +109,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { NInput, NButton, NText, NSpace, NFlex, NGrid, NGridItem, NIcon } from 'naive-ui'
+import { computed, inject } from 'vue'
+import { NInput, NButton, NText, NSpace, NFlex, NGrid, NGridItem, NIcon, NAlert } from 'naive-ui'
 import { useFullscreen } from '../composables/useFullscreen'
 import FullscreenDialog from './FullscreenDialog.vue'
+import { useModelManager } from '../composables/useModelManager'
+import { useModelSelectRefs } from '../composables/useModelSelectRefs'
+import type { AppServices } from '../types/services'
 
 interface Props {
   modelValue: string
@@ -127,6 +143,22 @@ const emit = defineEmits<{
   'submit': []
   'configModel': []
 }>()
+
+const services = inject<import('vue').Ref<AppServices | null>>('services', null)
+const modelSelectRefs = useModelSelectRefs()
+const modelManager = useModelManager(services, modelSelectRefs)
+
+const charCount = computed(() => props.modelValue.length)
+
+const maxTokens = computed(() => {
+  const model = modelManager.allModels.value.find(m => m.key === props.selectedModel)
+  return model?.maxTokens || null
+})
+
+const showWarning = computed(() => {
+  if (!maxTokens.value) return false
+  return charCount.value > maxTokens.value * 0.8
+})
 
 // 使用全屏组合函数
 const { isFullscreen, fullscreenValue, openFullscreen } = useFullscreen(

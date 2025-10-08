@@ -120,6 +120,16 @@ export class PromptService implements IPromptService {
       }
 
       const messages = TemplateProcessor.processTemplate(template, context);
+
+      // Enforce maxTokens limit on messages content
+      if (modelConfig.maxTokens) {
+        messages.forEach(msg => {
+          if (msg.content.length > modelConfig.maxTokens!) {
+            msg.content = msg.content.substring(0, modelConfig.maxTokens!) + '...';
+          }
+        });
+      }
+
       const result = await this.llmService.sendMessage(messages, request.modelKey);
 
       this.validateResponse(result, request.targetPrompt);
@@ -175,6 +185,15 @@ export class PromptService implements IPromptService {
       };
       const messages = TemplateProcessor.processTemplate(template, context);
 
+      // Enforce maxTokens limit on messages content
+      if (modelConfig.maxTokens) {
+        messages.forEach(msg => {
+          if (msg.content.length > modelConfig.maxTokens!) {
+            msg.content = msg.content.substring(0, modelConfig.maxTokens!) + '...';
+          }
+        });
+      }
+
       // 发送请求
       const result = await this.llmService.sendMessage(messages, modelKey);
 
@@ -214,6 +233,15 @@ export class PromptService implements IPromptService {
       }
 
       messages.push({ role: 'user', content: userPrompt });
+
+      // Enforce maxTokens limit on messages content
+      if (modelConfig.maxTokens) {
+        messages.forEach(msg => {
+          if (msg.content.length > modelConfig.maxTokens!) {
+            msg.content = msg.content.substring(0, modelConfig.maxTokens!) + '...';
+          }
+        });
+      }
 
       const result = await this.llmService.sendMessage(messages, modelKey);
 
@@ -272,6 +300,15 @@ export class PromptService implements IPromptService {
       }
 
       messages.push({ role: 'user', content: userPrompt });
+
+      // Enforce maxTokens limit on messages content
+      if (modelConfig.maxTokens) {
+        messages.forEach(msg => {
+          if (msg.content.length > modelConfig.maxTokens!) {
+            msg.content = msg.content.substring(0, modelConfig.maxTokens!) + '...';
+          }
+        });
+      }
 
       // 使用新的结构化流式响应
       await this.llmService.sendMessageStream(messages, modelKey, {
@@ -337,6 +374,15 @@ export class PromptService implements IPromptService {
       }
 
       const messages = TemplateProcessor.processTemplate(template, context);
+
+      // Enforce maxTokens limit on messages content
+      if (modelConfig.maxTokens) {
+        messages.forEach(msg => {
+          if (msg.content.length > modelConfig.maxTokens!) {
+            msg.content = msg.content.substring(0, modelConfig.maxTokens!) + '...';
+          }
+        });
+      }
 
       // 使用新的结构化流式响应
       await this.llmService.sendMessageStream(
@@ -408,6 +454,15 @@ export class PromptService implements IPromptService {
         iterateInput
       };
       const messages = TemplateProcessor.processTemplate(template, context);
+
+      // Enforce maxTokens limit on messages content
+      if (modelConfig.maxTokens) {
+        messages.forEach(msg => {
+          if (msg.content.length > modelConfig.maxTokens!) {
+            msg.content = msg.content.substring(0, modelConfig.maxTokens!) + '...';
+          }
+        });
+      }
 
       // 使用新的结构化流式响应
       await this.llmService.sendMessageStream(
@@ -548,6 +603,15 @@ export class PromptService implements IPromptService {
         request.messages,
         request.variables
       );
+
+      // Enforce maxTokens limit on messages content
+      if (modelConfig.maxTokens) {
+        processedMessages.forEach(msg => {
+          if (msg.content.length > modelConfig.maxTokens!) {
+            msg.content = msg.content.substring(0, modelConfig.maxTokens!) + '...';
+          }
+        });
+      }
 
       if (processedMessages.length === 0) {
         throw new TestError('No valid messages after processing', '', '');

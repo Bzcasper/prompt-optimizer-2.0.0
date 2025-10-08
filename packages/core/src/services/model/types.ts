@@ -20,6 +20,8 @@ export interface ModelConfig {
   provider: 'deepseek' | 'gemini' | 'custom' | 'zhipu' | string;
   /** LLM特定参数 */
   llmParams?: Record<string, any>;
+  /** 最大令牌数 */
+  maxTokens?: number;
 }
 
 /**
