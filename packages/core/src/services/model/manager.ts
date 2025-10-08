@@ -75,25 +75,41 @@ export class ModelManager implements IModelManager {
               hasUpdates = true;
               console.log(`[ModelManager] Added missing default model: ${key}`);
             } else {
-              // 更新现有模型的默认字段（保留用户的关键自定义配置）
+              // 更新现有模型的默认字段，同时保留用户的关键自定义配置
               const existingModel = updatedModels[key];
-              const updatedModel = {
-                ...defaultConfig,
-                // 保留用户配置的关键字段
-                name: existingModel.name !== undefined ? existingModel.name : defaultConfig.name,
-                baseURL: existingModel.baseURL || defaultConfig.baseURL,
-                defaultModel: existingModel.defaultModel !== undefined ? existingModel.defaultModel : defaultConfig.defaultModel,
-                apiKey: existingModel.apiKey || defaultConfig.apiKey,
-                enabled: existingModel.enabled !== undefined ? existingModel.enabled : defaultConfig.enabled,
-                // 保留用户的自定义 llmParams
-                llmParams: existingModel.llmParams || defaultConfig.llmParams
-              };
+              const updatedModel = { ...existingModel };
+
+              // 同步非敏感字段，这些字段不应由用户更改
+              updatedModel.provider = defaultConfig.provider;
+              updatedModel.models = defaultConfig.models;
+
+              // 如果用户没有自定义这些字段，则从默认值更新
+              if (updatedModel.name === undefined) updatedModel.name = defaultConfig.name;
+              if (!updatedModel.baseURL) updatedModel.baseURL = defaultConfig.baseURL;
+              if (!updatedModel.defaultModel) updatedModel.defaultModel = defaultConfig.defaultModel;
+              if (!updatedModel.llmParams) updatedModel.llmParams = defaultConfig.llmParams;
+
+              // 根据环境处理 API key 和启用状态
+              if (isElectronRenderer()) {
+                // 在 Electron 中，环境变量是 API key 的权威来源。
+                // 这确保了即使密钥在存储中存在，也会被 env var 覆盖。
+                updatedModel.apiKey = defaultConfig.apiKey;
+
+                // 启用逻辑：如果用户已明确禁用，则尊重该选择。
+                // 否则，如果环境中存在 API key，则启用模型。
+                updatedModel.enabled = existingModel.enabled === false ? false : !!defaultConfig.apiKey;
+              } else {
+                // 在 Web 中，用户存储是唯一来源。
+                // 我们不从 defaultConfig 获取 apiKey 或 enabled 状态。
+                updatedModel.apiKey = existingModel.apiKey || '';
+                updatedModel.enabled = existingModel.enabled || false;
+              }
 
               // 检查是否有变化
               if (JSON.stringify(updatedModels[key]) !== JSON.stringify(updatedModel)) {
                 updatedModels[key] = updatedModel;
                 hasUpdates = true;
-                console.log(`[ModelManager] Updated default model: ${key}`);
+                console.log(`[ModelManager] Updated/synced model: ${key}`);
               }
             }
           }

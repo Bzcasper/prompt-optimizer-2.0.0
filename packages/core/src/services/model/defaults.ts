@@ -3,14 +3,16 @@ import { getEnvVar, clearCustomModelEnvCache } from '../../utils/environment';
 import { createStaticModels } from './static-models';
 import { generateDynamicModels } from './model-utils';
 
-// 获取环境变量并生成静态模型配置
+// For the web version, we don't access environment variables for API keys.
+// They will be empty by default and must be provided by the user.
 const staticModels: Record<string, ModelConfig> = createStaticModels({
-  OPENAI_API_KEY: getEnvVar('VITE_OPENAI_API_KEY').trim(),
-  GEMINI_API_KEY: getEnvVar('VITE_GEMINI_API_KEY').trim(),
-  DEEPSEEK_API_KEY: getEnvVar('VITE_DEEPSEEK_API_KEY').trim(),
-  SILICONFLOW_API_KEY: getEnvVar('VITE_SILICONFLOW_API_KEY').trim(),
-  ZHIPU_API_KEY: getEnvVar('VITE_ZHIPU_API_KEY').trim(),
-  CUSTOM_API_KEY: getEnvVar('VITE_CUSTOM_API_KEY').trim(),
+  OPENAI_API_KEY: '',
+  GEMINI_API_KEY: '',
+  DEEPSEEK_API_KEY: '',
+  SILICONFLOW_API_KEY: '',
+  ZHIPU_API_KEY: '',
+  CUSTOM_API_KEY: '',
+  // These are not secrets and can be configured for custom models via env.
   CUSTOM_API_BASE_URL: getEnvVar('VITE_CUSTOM_API_BASE_URL'),
   CUSTOM_API_MODEL: getEnvVar('VITE_CUSTOM_API_MODEL')
 });
